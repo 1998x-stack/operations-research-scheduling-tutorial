@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第03章 对偶理论与灵敏度分析</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第03章 对偶理论与灵敏度分析</h1>
 
         <p>大家好，我是你们的讲师。上一章我们理解了线性规划的建模和单纯形法求解。但有一个问题你可能已经在心里想了：求出最优解之后呢？如果原材料价格上涨、如果客户追加订单、如果新工艺上线——最优解会怎么变化？</p>
@@ -136,6 +146,36 @@
 
         <p>这告诉厂长一个清晰的决策方向：<strong>优先扩木工产能</strong>，因为它的边际贡献最高。这就是对偶理论在商业决策中的直接价值。</p>
 
+        <figure>
+          <svg viewBox="0 0 760 280" role="img" aria-labelledby="fig3-title fig3-desc">
+            <title id="fig3-title">原问题与对偶问题的对称关系及影子价格</title>
+            <desc id="fig3-desc">左侧原问题以约束右端项为资源，右侧对偶问题给出每单位资源的影子价格，两侧目标值在最优处相等。</desc>
+            <defs><marker id="fig3-ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#7c3aed"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="13">
+              <rect x="20" y="40" width="270" height="200" rx="14" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="155" y="68" text-anchor="middle" font-weight="700" fill="#5b21b6">原问题 Primal · 生产计划</text>
+              <text x="42" y="98" fill="#3b0764">max　80x₁ + 50x₂</text>
+              <text x="42" y="126" fill="#3b0764">木工　4x₁+2x₂ ≤ 60</text>
+              <text x="42" y="154" fill="#3b0764">油漆　2x₁+2x₂ ≤ 40</text>
+              <text x="42" y="182" fill="#3b0764">市场　 x₂ ≤ 2x₁</text>
+              <text x="42" y="216" fill="#7c3aed">决策：生产多少 x₁, x₂</text>
+              <rect x="470" y="40" width="270" height="200" rx="14" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+              <text x="605" y="68" text-anchor="middle" font-weight="700" fill="#075985">对偶 Dual · 资源定价</text>
+              <text x="492" y="98" fill="#0c4a6e">min　60y₁ + 40y₂</text>
+              <text x="492" y="126" fill="#0c4a6e">y₁ = 15　→ 木工影子价</text>
+              <text x="492" y="154" fill="#0c4a6e">y₂ = 5　 → 油漆影子价</text>
+              <text x="492" y="182" fill="#0c4a6e">y₃ = 0　 → 市场非紧</text>
+              <text x="492" y="216" fill="#0369a1">决策：每单位资源值多少</text>
+              <line x1="292" y1="110" x2="468" y2="110" stroke="#7c3aed" stroke-width="2" marker-end="url(#fig3-ar)"/>
+              <line x1="468" y1="180" x2="292" y2="180" stroke="#7c3aed" stroke-width="2" marker-end="url(#fig3-ar)"/>
+              <text x="380" y="102" text-anchor="middle" fill="#6d28d9" font-size="12">系数 A → Aᵀ</text>
+              <text x="380" y="200" text-anchor="middle" fill="#6d28d9" font-size="12">影子价格 y</text>
+              <text x="380" y="150" text-anchor="middle" font-weight="700" fill="#1f2937">Z* = W*</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 3-1</strong>　原问题从“资源→产量”出发，对偶问题从“产量→资源定价”出发，两者在最优处目标值相等（<code>Z* = W*</code>，强对偶定理）。对偶变量 <code>y</code> 就是影子价格，直接回答“多给一单位资源能多赚多少”。</figcaption>
+        </figure>
+
         <div class="highlight">
             <p><strong>影子价格的商业价值：</strong>我在一家化工厂做过生产优化项目。通过影子价格分析，我们发现某一中间产品的储罐容量是"最紧的瓶颈"——它的影子价格高达每立方米 320 元。而储罐扩容的一次性投资成本约 50 万元，按日产量计算，不到半年就能收回投资。这个 ROI 分析直接说服了管理层立项扩容。没有影子价格，这种投资决策只能凭直觉。</p>
         </div>
@@ -146,10 +186,17 @@
 
         <p>定理内容：设 <code>x</code> 是原问题的可行解，<code>y</code> 是对偶问题的可行解，则它们同时是最优解当且仅当：</p>
 
-        <p style="text-align:center;font-size:1.1em;padding:10px;background:#f5f3ff;border-radius:6px;">
-            <code>yᵢ · (bᵢ - Aᵢx) = 0</code> 对所有 i 成立<br>
-            <code>(cⱼ - yᵀAⱼ) · xⱼ = 0</code> 对所有 j 成立
-        </p>
+        <div class="math-equation">
+          <span class="eq-label">式 3-1　互补松弛条件</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="互补松弛条件，可横向滚动">
+            <math display="block" aria-label="对每个 i，y 下标 i 乘 b 下标 i 减 A 下标 i 乘 x 等于零；对每个 j，c 下标 j 减 y 转置 A 下标 j 的差乘 x 下标 j 等于零">
+              <mtable>
+                <mtr><mtd><msub><mi>y</mi><mi>i</mi></msub><mo>·</mo><mrow><mo>(</mo><msub><mi>b</mi><mi>i</mi></msub><mo>−</mo><msub><mi>A</mi><mi>i</mi></msub><mi>x</mi><mo>)</mo></mrow><mo>=</mo><mn>0</mn></mtd><mtd><mspace width="1.5em"/><mo>∀</mo><mi>i</mi></mtd></mtr>
+                <mtr><mtd><mrow><mo>(</mo><msub><mi>c</mi><mi>j</mi></msub><mo>−</mo><msup><mi>y</mi><mo>⊤</mo></msup><msub><mi>A</mi><mi>j</mi></msub><mo>)</mo></mrow><mo>·</mo><msub><mi>x</mi><mi>j</mi></msub><mo>=</mo><mn>0</mn></mtd><mtd><mspace width="1.5em"/><mo>∀</mo><mi>j</mi></mtd></mtr>
+              </mtable>
+            </math>
+          </div>
+        </div>
 
         <p>通俗地说：<strong>要么约束是紧的（松弛变量为零），要么对应的对偶变量是零</strong>，不能两者都"宽松"。</p>
 
@@ -228,7 +275,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="04.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

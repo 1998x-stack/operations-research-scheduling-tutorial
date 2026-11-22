@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第06章 计算复杂性理论</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第06章 计算复杂性理论</h1>
 
         <p>大家好，我是你们的讲师。如果你是跟着我们的课程一路学过来的，此刻你心中可能有一个越来越强烈的困惑——我们讲了那么多算法方法，但到底哪些问题能快速求解，哪些问题再怎么优化也快不起来？</p>
@@ -68,6 +78,26 @@
                     │  │  └─────────┘  │   │
                     │  └───────────────┘   │
                     └─────────────────────┘</code></pre>
+
+        <figure>
+          <svg viewBox="0 0 760 340" role="img" aria-labelledby="fig6-title fig6-desc">
+            <title id="fig6-title">P、NP、NP-Complete 与 NP-Hard 的包含关系</title>
+            <desc id="fig6-desc">P 含于 NP，NP 与 NP-Hard 的交集是 NP-Complete；NP-Hard 不一定属于 NP。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="14">
+              <ellipse cx="470" cy="170" rx="275" ry="140" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5"/>
+              <ellipse cx="285" cy="170" rx="210" ry="140" fill="#e0f2fe" fill-opacity="0.65" stroke="#0ea5e9" stroke-width="2.5"/>
+              <circle cx="130" cy="170" r="52" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+              <text x="130" y="176" text-anchor="middle" font-weight="700" fill="#166534">P</text>
+              <text x="210" y="70" fill="#0369a1" font-weight="700">NP</text>
+              <text x="620" y="70" fill="#b45309" font-weight="700">NP-Hard</text>
+              <text x="345" y="150" text-anchor="middle" fill="#7c3aed" font-weight="700">NP-Complete</text>
+              <text x="345" y="172" text-anchor="middle" fill="#6d28d9" font-size="11">= NP ∩ NP-Hard</text>
+              <text x="600" y="290" fill="#92400e" font-size="11">可能不可验证、甚至不可判定</text>
+              <text x="90" y="250" fill="#166534" font-size="11">可快速求解</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 6-1</strong>　四类问题的包含关系。<code>P ⊆ NP</code>；<code>NP-Complete = NP ∩ NP-Hard</code>；而 NP-Hard 不必属于 NP（右下区域）。注意 NP 的蓝椭圆在 NP-Hard 黄区域之外还有一部分——即那些既在 NP 内、又尚未证明属于 NP-Hard 的问题。图为概念示意，未按比例。</figcaption>
+        </figure>
 
         <p>我们来逐一解释（如果你数学背景较强可以跳过，这里的解释偏直觉）：</p>
 
@@ -276,7 +306,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="07.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

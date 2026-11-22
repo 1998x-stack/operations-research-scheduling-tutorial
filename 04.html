@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第04章 整数规划与建模</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第04章 整数规划与建模</h1>
 
         <p>大家好，我是你们的讲师。前两章我们深入了线性规划的世界——连续变量的优化。但现实世界中，很多决策不是连续的：你不可能建"2.7 条"装配线，也不可能派"0.3 个"工人去完成一项任务。这些决策本质上是离散的，需要<strong>整数规划（Integer Programming, IP）</strong>。</p>
@@ -60,6 +70,21 @@
         </ul>
 
         <p>MILP 是工业界最常用的模型框架——据 Gurobi 的用户统计，超过 70% 的生产环境优化模型都是 MILP。</p>
+
+        <div class="math-equation">
+          <span class="eq-label">式 4-1　混合整数线性规划的标准形式</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="混合整数规划标准形式，可横向滚动">
+            <math display="block" aria-label="最小化 c 转置 x 加 d 转置 y，满足 A x 加 B y 大于等于 b，x 非负，y 取零或一">
+              <mtable>
+                <mtr><mtd><munder><mo>min</mo><mrow><mi>x</mi><mo>,</mo><mi>y</mi></mrow></munder></mtd><mtd><msup><mi>c</mi><mo>⊤</mo></msup><mi>x</mi><mo>+</mo><msup><mi>d</mi><mo>⊤</mo></msup><mi>y</mi></mtd></mtr>
+                <mtr><mtd><mi>s.t.</mi></mtd><mtd><mi>A</mi><mi>x</mi><mo>+</mo><mi>B</mi><mi>y</mi><mo>≥</mo><mi>b</mi></mtd></mtr>
+                <mtr><mtd></mtd><mtd><mi>x</mi><mo>≥</mo><mn>0</mn></mtd></mtr>
+                <mtr><mtd></mtd><mtd><mi>y</mi><mo>∈</mo><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>}</mo></mrow></mtd></mtr>
+              </mtable>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="x"><mi>x</mi></math> 为连续变量，<math class="math-inline" aria-label="y"><mi>y</mi></math> 为 0-1 整数变量。<strong>教学说明：</strong>“超过 70%”引自文中 Gurobi 用户统计陈述，非本文实测。</p>
+        </div>
 
         <h2>0-1 变量的建模技巧 — 逻辑约束的数学表达</h2>
 
@@ -242,6 +267,35 @@ gap = 0.5 / 0 = ∞  !!</code></pre>
 
         <p>整数 gap 越大，说明整数约束的"威力"越大——也就是说，连续的松弛解与离散的真实解差异巨大。MILP 难就难在：<strong>你没法简单地四舍五入</strong>。把 x₁ = 0.5 舍入到 1 可能违反约束，舍入到 0 可能目标值很差。</p>
 
+        <figure>
+          <svg viewBox="0 0 520 420" role="img" aria-labelledby="fig4-title fig4-desc">
+            <title id="fig4-title">线性松弛的分数解与整数可行解的差距</title>
+            <desc id="fig4-desc">三角形可行域内，线性松弛的最优解在零点五零点五，而整数可行点只有原点，两者目标值差距即为整数 gap。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <g stroke="#e2e8f0"><path d="M190 360 V70"/><path d="M310 360 V70"/><path d="M70 120 H420"/><path d="M70 240 H420"/></g>
+              <line x1="70" y1="360" x2="440" y2="360" stroke="#334155" stroke-width="2"/>
+              <line x1="70" y1="360" x2="70" y2="50" stroke="#334155" stroke-width="2"/>
+              <polygon points="70,360 310,360 190,240" fill="#8b5cf6" fill-opacity="0.18" stroke="#7c3aed" stroke-width="2"/>
+              <line x1="70" y1="360" x2="310" y2="120" stroke="#0ea5e9" stroke-width="2"/>
+              <line x1="70" y1="120" x2="310" y2="360" stroke="#14b8a6" stroke-width="2"/>
+              <line x1="190" y1="240" x2="380" y2="240" stroke="#dc2626" stroke-width="2" stroke-dasharray="7 5"/>
+              <polygon points="380,240 370,235 370,245" fill="#dc2626"/>
+              <g fill="#64748b">
+                <circle cx="70" cy="360" r="4"/><circle cx="310" cy="360" r="4"/><circle cx="70" cy="120" r="4"/><circle cx="310" cy="120" r="4"/><circle cx="190" cy="120" r="4"/><circle cx="70" cy="240" r="4"/><circle cx="310" cy="240" r="4"/><circle cx="190" cy="360" r="4"/>
+              </g>
+              <circle cx="190" cy="240" r="7" fill="#fff" stroke="#dc2626" stroke-width="3"/>
+              <circle cx="70" cy="360" r="6" fill="#7c3aed" stroke="#fff" stroke-width="2"/>
+              <text x="200" y="232" fill="#b91c1c" font-weight="700">LP 松弛最优 (0.5, 0.5)</text>
+              <text x="86" y="350" fill="#5b21b6" font-weight="700">整数最优 (0, 0)</text>
+              <text x="250" y="300" fill="#0369a1">x₂ = x₁</text>
+              <text x="90" y="105" fill="#0f766e">x₁+x₂ = 1</text>
+              <text x="400" y="222" fill="#b91c1c">max x₁ 方向</text>
+              <text x="432" y="382" fill="#334155">x₁</text><text x="44" y="64" fill="#334155">x₂</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 4-1</strong>　整数 gap 的几何来源。去掉整数约束后，LP 可以取到顶点上的分数解 <code>(0.5, 0.5)</code>；而可行域内唯一的整数点只有原点，目标值从 0.5 跌到 0。“四舍五入”既可能越出可行域，也可能远离最优。</figcaption>
+        </figure>
+
         <div class="tip">
             <p><strong>求解 MILP 的核心策略：分支定界（Branch and Bound）。</strong>它的思想是：先求解 LP 松弛，如果解恰好是整数，完美结束；如果某个变量应该是整数但不是，就"分支"——强制它 ≤ floor(值) 或 ≥ ceil(值)，递归求解两个子问题。通过比较上界和下界来剪枝。当代求解器还加入了切割平面（Cutting Planes）来收紧松弛，大幅加速求解过程。</p>
         </div>
@@ -255,7 +309,7 @@ gap = 0.5 / 0 = ∞  !!</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="05.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
