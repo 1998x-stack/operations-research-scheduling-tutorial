@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第12章 精确求解方法</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第12章 精确求解方法</h1>
 
         <p>大家好，我是你们的讲师。从第 8 章到第 11 章，我们一直在和各种启发式算法打交道——Johnson、CDS、NEH、LPT…… 这些算法快、实用，但有一个共同的"软肋"：<strong>它们不保证最优</strong>。那么问题来了：当我们需要一个真正的最优解时，该怎么办？</p>
@@ -163,6 +176,20 @@
             <li><strong>子问题（Subproblem / Pricing Problem）：</strong>负责生成新的候选模式，这些模式能改善主问题的目标值。</li>
         </ul>
 
+        <div class="math-equation">
+          <span class="eq-label">式 12-1　列的检验数（reduced cost）</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="检验数定义式，可横向滚动">
+            <math display="block" aria-label="列 j 的检验数等于其成本 c_j 减去对偶变量 pi 转置乘以约束系数 A_j">
+              <mrow>
+                <msub><mover><mi>c</mi><mo>¯</mo></mover><mi>j</mi></msub>
+                <mo>=</mo>
+                <msub><mi>c</mi><mi>j</mi></msub><mo>−</mo><msup><mi>π</mi><mo>⊤</mo></msup><msub><mi>A</mi><mi>j</mi></msub>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">若存在 <math class="math-inline" aria-label="c 横线 j 小于零"><msub><mover><mi>c</mi><mo>¯</mo></mover><mi>j</mi></msub><mo>&lt;</mo><mn>0</mn></math> 的列，说明它入基能降低主问题目标值；全部非负则当前 LP 松弛已最优。</p>
+        </div>
+
         <p>列生成在调度问题中的应用非常广泛。一个经典的例子是<strong>裁切料问题（Cutting Stock Problem）</strong>转化到调度的类比：在调度中，我们可以把"机器上的一个加工序列"看作一个"模式"，列生成可以动态地生成新的可行序列来改善整个调度方案。</p>
 
         <pre><code>列生成算法框架
@@ -191,6 +218,34 @@
   （完整算法称为 Branch and Price）</code></pre>
 
         <p>列生成与分枝定界结合后的完整方法称为<strong>分支定价法（Branch and Price）</strong>，它是处理超大规模组合优化问题的最强工具之一。</p>
+
+                <figure>
+          <svg viewBox="0 0 700 300" role="img" aria-labelledby="fig12-title fig12-desc">
+            <title id="fig12-title">列生成的受限主问题与定价子问题循环</title>
+            <desc id="fig12-desc">主问题求解后输出对偶变量给子问题，子问题寻找负检验数的新列返回，循环直至无新列可加。</desc>
+            <defs><marker id="fig12-a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#7c3aed"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <rect x="50" y="70" width="250" height="150" rx="14" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="175" y="98" text-anchor="middle" font-weight="700" fill="#5b21b6">受限主问题 RMP</text>
+              <text x="70" y="128" fill="#3b0764">min　Σ cⱼ λⱼ</text>
+              <text x="70" y="152" fill="#3b0764">s.t.　Σ aⱼ λⱼ ≥ b</text>
+              <text x="70" y="176" fill="#3b0764">　　λⱼ ≥ 0</text>
+              <text x="70" y="202" fill="#7c3aed">只含当前活跃的列</text>
+              <rect x="400" y="70" width="250" height="150" rx="14" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+              <text x="525" y="98" text-anchor="middle" font-weight="700" fill="#075985">定价子问题</text>
+              <text x="420" y="128" fill="#0c4a6e">min　cⱼ − πᵀAⱼ</text>
+              <text x="420" y="152" fill="#0c4a6e">寻找检验数为负的列</text>
+              <text x="420" y="178" fill="#0369a1">（通常是一个最短路 /</text>
+              <text x="420" y="196" fill="#0369a1">背包型子问题）</text>
+              <line x1="302" y1="105" x2="398" y2="105" stroke="#7c3aed" stroke-width="2" marker-end="url(#fig12-a)"/>
+              <line x1="398" y1="185" x2="302" y2="185" stroke="#7c3aed" stroke-width="2" marker-end="url(#fig12-a)"/>
+              <text x="350" y="98" text-anchor="middle" fill="#6d28d9" font-size="11">对偶变量 π</text>
+              <text x="350" y="205" text-anchor="middle" fill="#6d28d9" font-size="11">新列（若 c̄ⱼ&lt;0）</text>
+              <text x="350" y="255" text-anchor="middle" fill="#16a34a" font-size="12">无负检验数 → LP 最优 / 转分支定价</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 12-1</strong>　列生成是一个“主问题–子问题”的闭环。主问题给出对偶变量 <code>π</code>；子问题用这些价格去寻找检验数为负的新列；有则加入、循环，无则当前 LP 松弛最优。实际工作中，子问题往往是整个算法的性能瓶颈。</figcaption>
+        </figure>
 
         <p>下面我们来对比三种精确方法的特性：</p>
 
@@ -240,7 +295,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="13.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

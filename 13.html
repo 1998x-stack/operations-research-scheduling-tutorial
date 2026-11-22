@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第13章 元启发式算法（上）</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第13章 元启发式算法（上）</h1>
 
         <p>大家好，我是你们的讲师。上一章我们聊了精确求解方法——它们像狙击枪，精确但每颗子弹都要精心计算。而对于大规模调度问题，我们需要的更像是霰弹枪——不求一枪命中靶心，但求在可接受的时间内给出足够好的解。这就来到<strong>元启发式算法（Metaheuristics）</strong>的世界。</p>
@@ -113,6 +126,40 @@
                 </tr>
             </tbody>
         </table>
+
+        <figure>
+          <svg viewBox="0 0 700 280" role="img" aria-labelledby="fig13-title fig13-desc">
+            <title id="fig13-title">顺序交叉 OX 算子示例</title>
+            <desc id="fig13-desc">从父代一保留一段子串，再从父代二按顺序补齐缺失基因，得到不重复的子代排列。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="14">
+              <g stroke="#ddd6fe" stroke-dasharray="4 4"><line x1="250" y1="20" x2="250" y2="250"/><line x1="430" y1="20" x2="430" y2="250"/></g>
+              <text x="30" y="55" fill="#5b21b6" font-weight="700">父代 P1</text>
+              <g>
+                <rect x="130" y="32" width="60" height="40" fill="#ede9fe" stroke="#8b5cf6"/><rect x="190" y="32" width="60" height="40" fill="#ede9fe" stroke="#8b5cf6"/>
+                <rect x="250" y="32" width="60" height="40" fill="#a7f3d0" stroke="#16a34a"/><rect x="310" y="32" width="60" height="40" fill="#a7f3d0" stroke="#16a34a"/><rect x="370" y="32" width="60" height="40" fill="#a7f3d0" stroke="#16a34a"/>
+                <rect x="430" y="32" width="60" height="40" fill="#ede9fe" stroke="#8b5cf6"/>
+              </g>
+              <text x="30" y="130" fill="#0369a1" font-weight="700">父代 P2</text>
+              <g>
+                <rect x="130" y="107" width="60" height="40" fill="#e0f2fe" stroke="#0ea5e9"/><rect x="190" y="107" width="60" height="40" fill="#e0f2fe" stroke="#0ea5e9"/><rect x="250" y="107" width="60" height="40" fill="#e0f2fe" stroke="#0ea5e9"/><rect x="310" y="107" width="60" height="40" fill="#e0f2fe" stroke="#0ea5e9"/><rect x="370" y="107" width="60" height="40" fill="#e0f2fe" stroke="#0ea5e9"/><rect x="430" y="107" width="60" height="40" fill="#e0f2fe" stroke="#0ea5e9"/>
+              </g>
+              <text x="30" y="210" fill="#166534" font-weight="700">子代 OX</text>
+              <g stroke-width="1.5">
+                <rect x="130" y="185" width="60" height="40" fill="#f5f3ff" stroke="#8b5cf6"/><rect x="190" y="185" width="60" height="40" fill="#f5f3ff" stroke="#8b5cf6"/>
+                <rect x="250" y="185" width="60" height="40" fill="#a7f3d0" stroke="#16a34a"/><rect x="310" y="185" width="60" height="40" fill="#a7f3d0" stroke="#16a34a"/><rect x="370" y="185" width="60" height="40" fill="#a7f3d0" stroke="#16a34a"/>
+                <rect x="430" y="185" width="60" height="40" fill="#f5f3ff" stroke="#8b5cf6"/>
+              </g>
+              <g fill="#1f2937" text-anchor="middle">
+                <text x="160" y="58">1</text><text x="220" y="58">2</text><text x="280" y="58">3</text><text x="340" y="58">4</text><text x="400" y="58">5</text><text x="460" y="58">6</text>
+                <text x="160" y="133">4</text><text x="220" y="133">6</text><text x="280" y="133">2</text><text x="340" y="133">1</text><text x="400" y="133">5</text><text x="460" y="133">3</text>
+                <text x="160" y="211">2</text><text x="220" y="211">1</text><text x="280" y="211">3</text><text x="340" y="211">4</text><text x="400" y="211">5</text><text x="460" y="211">6</text>
+              </g>
+              <text x="530" y="58" fill="#475569" font-size="11">保留段（绿）</text>
+              <text x="530" y="133" fill="#475569" font-size="11">按序补齐缺失</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 13-1</strong>　顺序交叉 OX 的直观过程：绿色子串直接从父代 P1 继承并保持位置；其余位置按父代 P2 的顺序依次填入尚未出现的工件。这样得到的子代仍是合法的排列（无重复、无缺失）。</figcaption>
+        </figure>
 
         <h3>三、变异算子</h3>
         <ul>
@@ -208,6 +255,19 @@ Function Swap_Mutation(chromosome):
 
         <p>这个"以一定概率接受差解"的机制是 SA 的灵魂——它让算法在早期能够<strong>跳出局部最优</strong>，随着温度降低，接受差解的概率逐渐趋近于零，算法最终收敛。</p>
 
+        <div class="math-equation">
+          <span class="eq-label">式 13-1　Metropolis 接受概率</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Metropolis 接受概率，可横向滚动">
+            <math display="block" aria-label="接受概率 P 等于 1 与 e 的负的 delta f 除以 T 次方中的较小者">
+              <mrow>
+                <mi>P</mi><mo>(</mo><mtext>accept</mtext><mo>)</mo><mo>=</mo><mo>min</mo>
+                <mrow><mo>(</mo><mn>1</mn><mo>,</mo><msup><mi>e</mi><mrow><mo>−</mo><mfrac><mrow><mi>Δ</mi><mi>f</mi></mrow><mi>T</mi></mfrac></mrow></msup><mo>)</mo></mrow>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="delta f"><mi>Δ</mi><mi>f</mi></math> 为新旧解的代价差（仅当为正即变差时才需按此概率接受），<math class="math-inline" aria-label="T"><mi>T</mi></math> 为当前温度。</p>
+        </div>
+
         <h3>冷却策略</h3>
         <ul>
             <li><strong>指数冷却（Exponential Cooling）：</strong>T(t) = T₀ · α<sup>t</sup>，其中 α 通常在 0.8-0.99 之间。这是最常用的策略，降温速度前期快后期慢。</li>
@@ -255,7 +315,7 @@ Function Swap_Mutation(chromosome):
             <a href="index.html">📖 返回目录</a>
             <a href="14.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

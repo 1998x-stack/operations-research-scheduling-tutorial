@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第11章 平行机与批量调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第11章 平行机与批量调度</h1>
 
         <p>大家好，我是你们的讲师。前几章我们讨论的场景基本是"一台机器"或"一串机器"。但现实世界中很多工厂会做这么一件事：<strong>买好几台同样的设备</strong>放在一起。比如一个 CNC 加工车间里有 5 台完全相同的数控机床，一个数据中心里有几百台一模一样的服务器。这些设备可以并行工作——这就来到了<strong>平行机调度（Parallel Machine Scheduling）</strong>。</p>
@@ -140,7 +153,43 @@ Makespan = max(17, 14, 11) = 17
   M2: 8 + 7 = 15
   M3: 6 + 5 = 11
 最优 = 16
-LPT偏差 = (17-16)/16 = 6.25%  &lt; 4/3-1/9 ≈ 1.296</code></pre>
+LPT偏差 = (17-16)/16 = 6.25%  &lt; 4/3 - 1/(3m) = 11/9 ≈ 1.222  （Graham 界，m=3）</code></pre>
+
+        <div class="math-equation">
+          <span class="eq-label">式 11-1　LPT 的近似比上界（Graham, 1969）</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="LPT 近似比上界，可横向滚动">
+            <math display="block" aria-label="LPT 的 makespan 与最优 makespan 之比不超过四分之三减去三 m 分之一">
+              <mrow>
+                <mfrac><msub><mi>C</mi><mi>max</mi></msub><mrow><msubsup><mi>C</mi><mi>max</mi><mo>*</mo></msubsup></mrow></mfrac>
+                <mo>≤</mo><mfrac><mn>4</mn><mn>3</mn></mfrac><mo>−</mo><mfrac><mn>1</mn><mrow><mn>3</mn><mi>m</mi></mrow></mfrac>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="m"><mi>m</mi></math> 为机器数，<math class="math-inline" aria-label="C_max 星"><msubsup><mi>C</mi><mi>max</mi><mo>*</mo></msubsup></math> 为最优 makespan。m 越大，界越接近 4/3。上例中 m=3，界为 11/9≈1.222，与实际偏差 6.25% 一致。</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 700 320" role="img" aria-labelledby="fig11-title fig11-desc">
+            <title id="fig11-title">LPT 规则在三台平行机上的甘特图</title>
+            <desc id="fig11-desc">工件按 9、8、7、6、5、4、3 降序依次分配给当前负载最小的机器，最终三台机器负载为 17、14、11，makespan 为 17。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <line x1="70" y1="290" x2="640" y2="290" stroke="#334155" stroke-width="2"/>
+              <g fill="#64748b" text-anchor="middle"><text x="70" y="308">0</text><text x="198" y="308">4</text><text x="326" y="308">8</text><text x="454" y="308">12</text><text x="582" y="308">16</text></g>
+              <text x="24" y="105" fill="#334155" font-weight="700">M1</text>
+              <g stroke="#fff" stroke-width="2"><rect x="70" y="82" width="288" height="40" fill="#8b5cf6"/><rect x="358" y="82" width="160" height="40" fill="#0ea5e9"/><rect x="518" y="82" width="96" height="40" fill="#22c55e"/></g>
+              <g fill="#fff" text-anchor="middle"><text x="214" y="107">9</text><text x="438" y="107">5</text><text x="566" y="107">3</text></g>
+              <text x="24" y="175" fill="#334155" font-weight="700">M2</text>
+              <g stroke="#fff" stroke-width="2"><rect x="70" y="152" width="256" height="40" fill="#14b8a6"/><rect x="326" y="152" width="192" height="40" fill="#ef4444"/></g>
+              <g fill="#fff" text-anchor="middle"><text x="198" y="177">8</text><text x="422" y="177">6</text></g>
+              <text x="24" y="245" fill="#334155" font-weight="700">M3</text>
+              <g stroke="#fff" stroke-width="2"><rect x="70" y="222" width="224" height="40" fill="#f59e0b"/><rect x="294" y="222" width="128" height="40" fill="#a855f7"/></g>
+              <g fill="#fff" text-anchor="middle"><text x="182" y="247">7</text><text x="358" y="247">4</text></g>
+              <text x="630" y="105" fill="#5b21b6">负载 17 ← makespan</text>
+              <text x="470" y="247" fill="#6b7280">负载 14 / 11</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 11-1</strong>　LPT 在 3 台同速平行机上的分配结果。工件按时长降序（9,8,7,6,5,4,3）依次落到当前负载最小的机器上，得到负载 17/14/11。块内数字为加工时间；数据取自本章 LPT 示例。负载不均导致的 <code>makespan=17</code> 比最优 16 高约 6.25%。</figcaption>
+        </figure>
 
         <p><strong>列表调度（List Scheduling）</strong>是 LPT 的通用框架：维护一个"待安排工件的列表"，每次从列表中取出一个工件（按某种优先级规则），分配给当前负载最小的机器。LPT 是这个框架下的一种具体规则（按加工时间降序排列）。其他常见的列表调度规则有：SPT（最短加工时间优先）、ECT（最早完工时间优先）、WECT（加权最早完工时间优先）等。</p>
 
@@ -177,7 +226,7 @@ LPT偏差 = (17-16)/16 = 6.25%  &lt; 4/3-1/9 ≈ 1.296</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="12.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
