@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第01章 运筹学与调度概述</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html" class="active">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第01章 运筹学与调度概述</h1>
 
         <p>大家好，我是你们的讲师。在正式开始这门课之前，我想先问一个问题：你每天打开手机上的地图导航 App，它帮你规划了一条避开拥堵的最佳路线——你知道背后是什么算法在支撑吗？你网购买了一件商品，快递隔天就送到了门口——那成千上万个包裹是如何被分拣、装车、派送的，每一个环节的时间节点又是谁在决定？</p>
@@ -169,6 +179,53 @@
             </tbody>
         </table>
 
+        <figure>
+          <svg viewBox="0 0 760 320" role="img" aria-labelledby="fig1-title fig1-desc">
+            <title id="fig1-title">四种车间类型的结构与工件流向</title>
+            <desc id="fig1-desc">单机只有一台机器；平行机有多台等价机器；流水车间所有工件按同一顺序经过机器；作业车间每个工件有各自的加工路线。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="13">
+              <g>
+                <rect x="10" y="10" width="360" height="140" rx="12" fill="#faf8ff" stroke="#ddd6fe"/>
+                <text x="26" y="34" font-weight="700" fill="#5b21b6">1 · 单机 Single Machine</text>
+                <circle cx="60" cy="80" r="12" fill="#14b8a6"/><circle cx="60" cy="115" r="12" fill="#14b8a6"/><circle cx="60" cy="150" r="12" fill="#14b8a6"/>
+                <g stroke="#94a3b8" stroke-width="1.5" fill="none"><path d="M74 80 H150"/><path d="M74 115 H150"/><path d="M74 150 H150"/></g>
+                <rect x="152" y="62" width="170" height="96" rx="10" fill="#8b5cf6"/>
+                <text x="237" y="116" text-anchor="middle" fill="#fff" font-weight="700">Machine 1</text>
+              </g>
+              <g>
+                <rect x="390" y="10" width="360" height="140" rx="12" fill="#faf8ff" stroke="#ddd6fe"/>
+                <text x="406" y="34" font-weight="700" fill="#5b21b6">P · 平行机 Parallel</text>
+                <circle cx="432" cy="70" r="10" fill="#14b8a6"/><circle cx="432" cy="105" r="10" fill="#14b8a6"/><circle cx="432" cy="140" r="10" fill="#14b8a6"/>
+                <g stroke="#94a3b8" stroke-width="1.5" fill="none"><path d="M444 70 H500"/><path d="M444 105 H500"/><path d="M444 140 H500"/></g>
+                <rect x="502" y="52" width="108" height="36" rx="8" fill="#8b5cf6"/><rect x="502" y="96" width="108" height="36" rx="8" fill="#8b5cf6"/><rect x="502" y="140" width="108" height="36" rx="8" fill="#8b5cf6"/>
+                <text x="556" y="75" text-anchor="middle" fill="#fff" font-size="11">M1</text><text x="556" y="119" text-anchor="middle" fill="#fff" font-size="11">M2</text><text x="556" y="163" text-anchor="middle" fill="#fff" font-size="11">M3</text>
+              </g>
+              <g>
+                <rect x="10" y="170" width="360" height="140" rx="12" fill="#faf8ff" stroke="#ddd6fe"/>
+                <text x="26" y="194" font-weight="700" fill="#5b21b6">F · 流水车间 Flow Shop</text>
+                <g fill="#14b8a6"><circle cx="60" cy="228" r="9"/><circle cx="60" cy="258" r="9"/><circle cx="60" cy="288" r="9"/></g>
+                <g stroke="#94a3b8" stroke-width="1.5" fill="none"><path d="M70 228 H100"/><path d="M70 258 H100"/><path d="M70 288 H100"/></g>
+                <g fill="#8b5cf6"><rect x="102" y="218" width="76" height="80" rx="8"/><rect x="196" y="218" width="76" height="80" rx="8"/><rect x="290" y="218" width="66" height="80" rx="8"/></g>
+                <g stroke="#fff" stroke-width="2" fill="none"><path d="M178 258 H196"/><path d="M272 258 H290"/></g>
+                <text x="140" y="262" text-anchor="middle" fill="#fff" font-size="11">M1</text><text x="234" y="262" text-anchor="middle" fill="#fff" font-size="11">M2</text><text x="323" y="262" text-anchor="middle" fill="#fff" font-size="11">M3</text>
+              </g>
+              <g>
+                <rect x="390" y="170" width="360" height="140" rx="12" fill="#faf8ff" stroke="#ddd6fe"/>
+                <text x="406" y="194" font-weight="700" fill="#5b21b6">G · 作业车间 Job Shop</text>
+                <g fill="#8b5cf6"><rect x="500" y="222" width="90" height="34" rx="8"/><rect x="500" y="266" width="90" height="34" rx="8"/><rect x="620" y="244" width="90" height="34" rx="8"/></g>
+                <g fill="#fff" font-size="11" text-anchor="middle"><text x="545" y="243">M1</text><text x="545" y="287">M2</text><text x="665" y="265">M3</text></g>
+                <path d="M430 236 C470 236 470 239 500 239" stroke="#f59e0b" stroke-width="3" fill="none"/>
+                <path d="M430 280 C470 280 470 283 500 283" stroke="#f59e0b" stroke-width="3" fill="none"/>
+                <path d="M590 239 C610 239 610 261 620 261" stroke="#f59e0b" stroke-width="3" fill="none"/>
+                <path d="M590 283 C610 283 610 261 620 261" stroke="#f59e0b" stroke-width="3" fill="none"/>
+                <text x="414" y="228" fill="#b45309" font-size="11">J1→M2→M3</text>
+                <text x="414" y="303" fill="#b45309" font-size="11">J2→M1→M3</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption><strong>图 1-1</strong>　车间类型决定了问题的结构。单机（1）与平行机（P）只涉及“选哪台”，而流水车间（F）要求所有工件共享同一机器顺序，作业车间（G）则允许每个工件有独立路线并产生回环——后者正是第 9–10 章的核心。颜色约定：紫色为机器，青色为工件，橙色为工艺路线。</figcaption>
+        </figure>
+
         <p>再看目标函数 B 的常见符号：</p>
 
         <table>
@@ -223,6 +280,25 @@
 - 车间类型为 Flow Shop（A=F），所有工件按相同顺序经过机器
 - 优化目标是 minimize makespan（B=Cmax），即最小化最后一个工件的完工时间</code></pre>
 
+        <div class="math-equation">
+          <span class="eq-label">式 1-1　两个最常用的目标函数定义</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="最大完工时间与最大延迟的定义式，可横向滚动">
+            <math display="block" aria-label="最大完工时间等于所有工件完工时间的最大值；最大延迟等于所有工件完工时间减交货期之差的最大值">
+              <mrow>
+                <msub><mi>C</mi><mi>max</mi></msub><mo>=</mo>
+                <munder><mo>max</mo><mrow><mn>1</mn><mo>≤</mo><mi>j</mi><mo>≤</mo><mi>n</mi></mrow></munder>
+                <msub><mi>C</mi><mi>j</mi></msub>
+                <mo>,</mo>
+                <mspace width="1.2em"/>
+                <msub><mi>L</mi><mi>max</mi></msub><mo>=</mo>
+                <munder><mo>max</mo><mrow><mn>1</mn><mo>≤</mo><mi>j</mi><mo>≤</mo><mi>n</mi></mrow></munder>
+                <mrow><mo>(</mo><msub><mi>C</mi><mi>j</mi></msub><mo>−</mo><msub><mi>d</mi><mi>j</mi></msub><mo>)</mo></mrow>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="C_j 为工件 j 的完工时间"><msub><mi>C</mi><mi>j</mi></msub></math> 是工件 j 的完工时间，<math class="math-inline" aria-label="d_j 为工件 j 的交货期"><msub><mi>d</mi><mi>j</mi></msub></math> 是其交货期。<math class="math-inline" aria-label="C_max"><msub><mi>C</mi><mi>max</mi></msub></math> 关注“最后完工”的环节（产能/周期视角），<math class="math-inline" aria-label="L_max"><msub><mi>L</mi><mi>max</mi></msub></math> 关注“是否违约”的环节（交付视角）。</p>
+        </div>
+
         <p>这个表示法最大的好处是，无论在论文还是技术文档中，当你看到 <code>F / Cmax</code> 或 <code>J / ΣwC</code> 这样的缩写，你立刻就能知道问题是什么结构、优化什么目标，而不需要读大段文字描述。</p>
 
         <h2>调度问题的应用全景</h2>
@@ -249,7 +325,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="02.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

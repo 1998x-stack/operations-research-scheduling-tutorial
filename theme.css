@@ -22,9 +22,10 @@ body {
 
 .container {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 260px minmax(0, 1fr);
     gap: 0;
 }
+.container > * { min-width: 0; }
 
 /* === Sidebar === */
 .sidebar {
@@ -107,6 +108,7 @@ pre code { background: none; padding: 0; }
 /* === Tables === */
 table {
     width: 100%; border-collapse: collapse; margin: 15px 0; background: #fafafe;
+    display: block; max-width: 100%; overflow-x: auto;
 }
 
 th, td {
@@ -133,6 +135,27 @@ th {
     background: #fef9c3; border: 1px solid #facc15;
 }
 
+/* === Figures & Diagrams === */
+figure {
+    margin: 22px 0; padding: 14px; background: #fafafe;
+    border: 1px solid #ddd6fe; border-radius: 18px; text-align: center;
+}
+figure svg { width: 100%; height: auto; max-width: 820px; display: block; margin: 0 auto; }
+figcaption {
+    margin-top: 10px; font-size: 0.88rem; line-height: 1.7; color: #4b5563; text-align: left;
+}
+/* === Math === */
+.math-inline { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", serif; }
+.math-equation { max-width: 100%; min-width: 0; margin: 18px 0; }
+.math-scroll { max-width: 100%; min-width: 0; overflow-x: auto; overflow-y: hidden; padding: 6px 2px; }
+.math-scroll:focus-visible { outline: 3px solid #7c3aed; outline-offset: 2px; }
+.math-scroll math[display="block"] {
+    width: max-content; min-width: 100%; font-size: 1.25rem;
+    font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", serif;
+}
+.eq-label { display: block; font-size: 0.82rem; color: #6d28d9; margin-bottom: 4px; font-weight: 600; }
+@media print { .math-scroll { overflow: visible; } .math-scroll math[display="block"] { font-size: 1rem; } }
+
 /* === Footer Navigation === */
 .footer-nav {
     margin-top: 45px; padding-top: 20px;
@@ -151,8 +174,8 @@ th {
 
 /* === Responsive === */
 @media (max-width: 768px) {
-    .container { grid-template-columns: 1fr; }
-    .sidebar { border-right: none; border-bottom: 2px solid #c4b5fd; }
+    .container { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { border-right: none; border-bottom: 2px solid #c4b5fd; min-width: 0; }
     body { padding: 10px; }
     .main-content { padding: 20px; }
 }

@@ -271,18 +271,46 @@
     </style>
 </head>
 <body>
-<div class="container">
+<main class="container">
     <div class="header">
         <h1><span class="emoji"></span><span class="title-text"></span></h1>
         <div class="sub"></div>
     </div>
 
+    <section aria-labelledby="learning-path">
+        <h2 id="learning-path">学习路径</h2>
+        <figure>
+          <svg viewBox="0 0 760 150" role="img" aria-labelledby="idx-title idx-desc">
+            <title id="idx-title">二十八章的四阶段递进学习路径</title>
+            <desc id="idx-desc">基础理论、经典调度、智能方法、前沿与实战四个阶段依次递进。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="13">
+              <g fill="#ede9fe" stroke="#8b5cf6" stroke-width="2">
+                <rect x="8" y="45" width="168" height="60" rx="12"/>
+                <rect x="200" y="45" width="168" height="60" rx="12"/>
+                <rect x="392" y="45" width="168" height="60" rx="12"/>
+                <rect x="584" y="45" width="168" height="60" rx="12"/>
+              </g>
+              <g fill="#5b21b6" text-anchor="middle" font-weight="700">
+                <text x="92" y="72">基础理论</text><text x="284" y="72">经典调度</text><text x="476" y="72">智能方法</text><text x="668" y="72">前沿与实战</text>
+              </g>
+              <g fill="#6b7280" text-anchor="middle" font-size="11">
+                <text x="92" y="92">01–06 章</text><text x="284" y="92">07–12 章</text><text x="476" y="92">13–21 章</text><text x="668" y="92">22–28 章</text>
+              </g>
+              <g stroke="#8b5cf6" stroke-width="2" fill="none"><path d="M176 75 H200"/><path d="M368 75 H392"/><path d="M560 75 H584"/></g>
+              <g fill="#8b5cf6"><polygon points="200,75 191,70 191,80"/><polygon points="392,75 383,70 383,80"/><polygon points="584,75 575,70 575,80"/></g>
+            </g>
+          </svg>
+          <figcaption><strong>图 0-1</strong>　课程按四个阶段递进：先建立数学与复杂性基础，再掌握经典调度模型，然后进入智能与学习型方法，最后落到工业实战与前沿专题。建议按章序推进。</figcaption>
+        </figure>
+    </section>
+
+    <h2>全部章节</h2>
     <div id="cardContainer" class="course-grid"></div>
 
     <div style="text-align:center;">
         <div class="footer"></div>
     </div>
-</div>
+</main>
 
 <script>
     (function() {
