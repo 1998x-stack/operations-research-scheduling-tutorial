@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第28章 综合实战：从建模到部署</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html" class="active">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第28章 综合实战：从建模到部署</h1>
 
         <p>大家好，我是你们的讲师。欢迎来到这门课的最后一章。从第 01 章的"运筹学是什么"，到第 27 章的"绿色调度与可持续发展"，我们已经走过了一条很长的路。如果你一路跟着学下来，你应该已经掌握了：</p>
@@ -64,6 +77,23 @@
         <p>我们要解决的问题是：<strong>带工具约束和工人排班的柔性作业车间调度问题（Flexible Job Shop Scheduling with Tool Constraints and Worker Assignment, FJSP-TW）</strong>。</p>
 
         <p>问题场景：一家中等规模的机加工厂，有 8 台数控机床（CNC）、12 名操作工人、3 类刀具（钻头、铣刀、车刀）各若干把。工厂每天收到 20-30 个工件订单，每个工件需要经过 3-6 道工序，每道工序可以在多台机床上完成（柔性），但加工时间不同。工序之间可能有工艺顺序约束。每台机床在同一时间只能加工一个工件。每个工人的技能等级不同，能操作的机床范围不同。同时，工具数量有限——如果一把刀具被占用，其他需要使用同一刀具的工序必须等待。</p>
+
+        <div class="math-equation">
+          <span class="eq-label">式 28-1　FJSP-TW 的加权目标函数</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="FJSP-TW 加权目标函数，可横向滚动">
+            <math display="block" aria-label="最小化三个加权项之和：最大完工时间、总能耗、工人加班时间">
+              <mrow>
+                <mo>min</mo><mspace width="0.5em"/>
+                <msub><mi>λ</mi><mn>1</mn></msub><msub><mi>C</mi><mi>max</mi></msub>
+                <mo>+</mo>
+                <msub><mi>λ</mi><mn>2</mn></msub><munder><mo>∑</mo><mi>m</mi></munder><msub><mi>E</mi><mi>m</mi></msub>
+                <mo>+</mo>
+                <msub><mi>λ</mi><mn>3</mn></msub><munder><mo>∑</mo><mi>w</mi></munder><msub><mi>O</mi><mi>w</mi></msub>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><math class="math-inline" aria-label="C_max"><msub><mi>C</mi><mi>max</mi></msub></math> 为最大完工时间，<math class="math-inline" aria-label="E_m"><msub><mi>E</mi><mi>m</mi></msub></math> 为机床 m 的能耗，<math class="math-inline" aria-label="O_w"><msub><mi>O</mi><mi>w</mi></msub></math> 为工人 w 的加班时间。<math class="math-inline" aria-label="lambda"><msub><mi>λ</mi><mn>1</mn></msub></math> 等权重由业务方按优先级设定，属教学示意。</p>
+        </div>
 
         <p><strong>数据准备：</strong></p>
 
@@ -208,6 +238,43 @@ class FJSP_TW_Solver:
         <h2>技术选型最终总结 — 28 章的决策树</h2>
 
         <p>到了这一步，你可能在想：面对一个真实的调度问题，我该选择什么方法？这个决策树可以帮你快速判断。</p>
+
+        <figure>
+          <svg viewBox="0 0 760 340" role="img" aria-labelledby="fig28-title fig28-desc">
+            <title id="fig28-title">调度方法选型决策树</title>
+            <desc id="fig28-desc">从真实调度问题出发，根据规模、是否需最优解、是否允许近似，分别导向精确方法、经典启发式规则或元启发式与学习型方法。</desc>
+            <defs><marker id="fig28-a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#7c3aed"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <rect x="290" y="24" width="180" height="46" rx="10" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="380" y="52" text-anchor="middle" font-weight="700" fill="#5b21b6">真实调度问题</text>
+              <g stroke="#7c3aed" stroke-width="2" fill="none" marker-end="url(#fig28-a)">
+                <line x1="340" y1="70" x2="180" y2="118"/><line x1="380" y1="70" x2="380" y2="118"/><line x1="420" y1="70" x2="580" y2="118"/>
+              </g>
+              <g stroke-width="2">
+                <rect x="40" y="120" width="280" height="130" rx="12" fill="#e0f2fe" stroke="#0ea5e9"/>
+                <rect x="340" y="120" width="120" height="130" rx="12" fill="#fef3c7" stroke="#f59e0b"/>
+                <rect x="480" y="120" width="240" height="130" rx="12" fill="#dcfce7" stroke="#16a34a"/>
+              </g>
+              <text x="180" y="146" text-anchor="middle" font-weight="700" fill="#075985">精确方法</text>
+              <text x="180" y="170" text-anchor="middle" fill="#0c4a6e">CP-SAT / MILP / B&B</text>
+              <text x="180" y="192" text-anchor="middle" fill="#0369a1" font-size="11">条件：规模小</text>
+              <text x="180" y="210" text-anchor="middle" fill="#0369a1" font-size="11">必须拿到最优解</text>
+              <text x="180" y="232" text-anchor="middle" fill="#0369a1" font-size="11">（第 09/12/15 章）</text>
+              <text x="400" y="146" text-anchor="middle" font-weight="700" fill="#b45309">启发式规则</text>
+              <text x="400" y="170" text-anchor="middle" fill="#92400e" font-size="11">EDD/SPT</text>
+              <text x="400" y="188" text-anchor="middle" fill="#92400e" font-size="11">Johnson</text>
+              <text x="400" y="206" text-anchor="middle" fill="#92400e" font-size="11">NEH</text>
+              <text x="400" y="232" text-anchor="middle" fill="#b45309" font-size="11">（第 07/08 章）</text>
+              <text x="600" y="146" text-anchor="middle" font-weight="700" fill="#166534">元启发式 / 学习型</text>
+              <text x="600" y="170" text-anchor="middle" fill="#14532d" font-size="11">GA / TS / ALNS</text>
+              <text x="600" y="190" text-anchor="middle" fill="#14532d" font-size="11">RL / GNN（需数据）</text>
+              <text x="600" y="212" text-anchor="middle" fill="#15803d" font-size="11">条件：大规模</text>
+              <text x="600" y="232" text-anchor="middle" fill="#15803d" font-size="11">（第 13/14/23/24 章）</text>
+              <text x="380" y="290" text-anchor="middle" fill="#6b7280" font-size="11">实际工程常采用混合：CP-SAT 做瓶颈窗口局部优化 + 元启发式做全局搜索</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 28-1</strong>　调度方法选型决策树。先看规模与最优性要求：规模小且需最优选精确方法；问题结构清晰（单机/流水）优先经典规则；大规模且允许近似则用元启发式或学习型方法。真实项目往往是多方法混合，而非单一选择。</figcaption>
+        </figure>
 
         <table>
             <thead>
@@ -354,7 +421,7 @@ class FJSP_TW_Solver:
             <a href="index.html">📖 返回目录</a>
             <a href="javascript:void(0)">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

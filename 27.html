@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第27章 绿色调度与可持续发展</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html" class="active">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第27章 绿色调度与可持续发展</h1>
 
         <p>大家好，我是你们的讲师。上一章我们聊了数字孪生如何让调度系统"感知"现实。今天的话题方向截然不同——我们把目光从技术转向<strong>责任</strong>。你可能觉得"绿色"和"调度"是两个世界的事情——调度不就是为了在最短时间内用最少资源完成最多的活吗？怎么还跟环保扯上关系了？</p>
@@ -107,6 +120,44 @@ y[m][t] ≥ Σ_j x[j][m][t]                                      ∀m, t
 z[m][t] ≥ y[m][t] - y[m][t-1]                                ∀m, t &gt; 1</code></pre>
 
         <p>这个模型虽然简化了（忽略了工件顺序约束和释放时间等细节），但已经能让你感受到绿色调度的建模风格——在经典 MILP 的基础上增加了<strong>能耗状态变量</strong>和<strong>电价/碳强度系数</strong>，目标函数中增加了<strong>环境成本项</strong>。</p>
+
+        <div class="math-equation">
+          <span class="eq-label">式 27-1　含电价与碳成本的目标函数</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="绿色调度目标函数，可横向滚动">
+            <math display="block" aria-label="最小化总成本，等于各时段用电量乘以电价加碳价乘碳强度之和">
+              <mrow>
+                <mo>min</mo><mspace width="0.5em"/>
+                <munder><mo>∑</mo><mi>t</mi></munder>
+                <mrow><mo>(</mo><msub><mi>price</mi><mi>t</mi></msub><mo>+</mo><mi>λ</mi><mo>·</mo><msub><mi>carbon</mi><mi>t</mi></msub><mo>)</mo></mrow>
+                <mo>·</mo><msub><mi>E</mi><mi>t</mi></msub>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><math class="math-inline" aria-label="E t"><msub><mi>E</mi><mi>t</mi></msub></math> 为时段 <math class="math-inline" aria-label="t"><mi>t</mi></math> 的总用电量，<math class="math-inline" aria-label="price t"><msub><mi>price</mi><mi>t</mi></msub></math> 为分时电价，<math class="math-inline" aria-label="lambda"><mi>λ</mi></math> 为碳价系数，<math class="math-inline" aria-label="carbon t"><msub><mi>carbon</mi><mi>t</mi></msub></math> 为电网碳强度。</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 700 420" role="img" aria-labelledby="fig27-title fig27-desc">
+            <title id="fig27-title">分时电价与用电负荷的时段迁移</title>
+            <desc id="fig27-desc">上方为峰谷电价曲线，中部为原始排程负荷，下部为优化后把高负荷迁移到谷时的负荷。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="11">
+              <line x1="70" y1="150" x2="610" y2="150" stroke="#334155" stroke-width="1.5"/>
+              <polyline points="114,120 202,100 290,30 378,50 466,40 554,110" fill="none" stroke="#dc2626" stroke-width="3"/>
+              <g fill="#b91c1c"><circle cx="114" cy="120" r="4"/><circle cx="202" cy="100" r="4"/><circle cx="290" cy="30" r="4"/><circle cx="378" cy="50" r="4"/><circle cx="466" cy="40" r="4"/><circle cx="554" cy="110" r="4"/></g>
+              <text x="20" y="30" fill="#b91c1c" font-weight="700">电价</text>
+              <text x="292" y="24" fill="#b91c1c" font-size="10">峰</text>
+              <text x="110" y="112" fill="#16a34a" font-size="10">谷</text>
+              <text x="20" y="200" fill="#475569" font-weight="700">原负荷</text>
+              <g fill="#cbd5e1"><rect x="75" y="240" width="70" height="20"/><rect x="163" y="240" width="70" height="20"/><rect x="251" y="180" width="70" height="80"/><rect x="339" y="180" width="70" height="80"/><rect x="427" y="180" width="70" height="80"/><rect x="515" y="220" width="70" height="40"/></g>
+              <line x1="70" y1="260" x2="610" y2="260" stroke="#334155" stroke-width="1.5"/>
+              <text x="20" y="320" fill="#166534" font-weight="700">优化后</text>
+              <g fill="#86efac"><rect x="75" y="300" width="70" height="80"/><rect x="163" y="320" width="70" height="60"/><rect x="251" y="340" width="70" height="40"/><rect x="339" y="360" width="70" height="20"/><rect x="427" y="360" width="70" height="20"/><rect x="515" y="300" width="70" height="80"/></g>
+              <line x1="70" y1="380" x2="610" y2="380" stroke="#334155" stroke-width="1.5"/>
+              <g fill="#64748b" text-anchor="middle"><text x="110" y="398">0-4h</text><text x="198" y="398">4-8h</text><text x="286" y="398">8-12h</text><text x="374" y="398">12-16h</text><text x="462" y="398">16-20h</text><text x="550" y="398">20-24h</text></g>
+            </g>
+          </svg>
+          <figcaption><strong>图 27-1</strong>　分时电价下的负荷迁移。上方红色为电价曲线（夜间谷、白天峰）；中部灰色为“跟着电价走”的原始负荷，高峰时段耗电最多；下方绿色为优化后的负荷，把可延迟的工序移到谷时。在总工时不变的前提下，电费与碳排同时下降。负荷数值为教学示意。</figcaption>
+        </figure>
 
         <div class="tip">
             <p><strong>真实案例：</strong>2024 年，浙江一家精密铸造企业引入分时电价调度系统。他们的熔炼炉功率高达 2000 kW，峰时电价 1.2 元/度，谷时电价 0.3 元/度。通过将熔炼工序从白天调整到夜间（利用谷电），每年节省电费超过 180 万元，而调度系统本身的开发投入不到 30 万。<strong>投资回报周期不到 2 个月。</strong>这还不算碳减排带来的碳交易收益。</p>
@@ -235,7 +286,7 @@ z[m][t] ≥ y[m][t] - y[m][t-1]                                ∀m, t &gt; 1</c
             <a href="index.html">📖 返回目录</a>
             <a href="28.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
