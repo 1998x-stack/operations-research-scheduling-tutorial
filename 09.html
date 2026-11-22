@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第09章 作业车间调度（上）</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第09章 作业车间调度（上）</h1>
 
         <p>大家好，我是你们的讲师。上一章我们讨论了流水车间，所有工件沿着同一条路线前进——简单、规律、可预测。但现实世界并不总是这么"听话"。在一家模具加工厂里，你可能会看到这样的场景：工件 A 需要先车、再铣、最后磨；工件 B 需要先铣、再热处理、再磨；工件 C 需要先磨、再车。三条路线完全不同，设备之间还有交叉——这就是今天的主题：<strong>作业车间调度（Job Shop Scheduling, JSP）</strong>。</p>
@@ -117,6 +127,43 @@
             <li><strong>析取弧：</strong>在 M₁ 上加工的操作有 O₁₁, O₂₂, O₃₃ —— 它们两两之间有无向析取弧；在 M₂ 上有 O₁₂, O₂₁, O₃₂；在 M₃ 上有 O₁₃, O₂₃, O₃₁。</li>
         </ul>
 
+        <figure>
+          <svg viewBox="0 0 760 330" role="img" aria-labelledby="fig9-title fig9-desc">
+            <title id="fig9-title">三乘三作业车间的析取图</title>
+            <desc id="fig9-desc">实线为同一工件工序间的合取弧，虚线为同一机器上工序间的无向析取弧，源点与汇点包住全局。</desc>
+            <defs><marker id="fig9-s" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#334155"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="11">
+              <g stroke="#334155" stroke-width="2" fill="none" marker-end="url(#fig9-s)">
+                <line x1="150" y1="80" x2="320" y2="80"/><line x1="380" y1="80" x2="520" y2="80"/>
+                <line x1="150" y1="170" x2="320" y2="170"/><line x1="380" y1="170" x2="520" y2="170"/>
+                <line x1="150" y1="260" x2="320" y2="260"/><line x1="380" y1="260" x2="520" y2="260"/>
+                <line x1="108" y1="80" x2="80" y2="80"/><line x1="108" y1="170" x2="80" y2="170"/><line x1="108" y1="260" x2="80" y2="260"/>
+                <line x1="580" y1="80" x2="624" y2="80"/><line x1="580" y1="170" x2="624" y2="170"/><line x1="580" y1="260" x2="624" y2="260"/>
+              </g>
+              <g stroke="#8b5cf6" stroke-width="1.6" stroke-dasharray="5 4">
+                <line x1="150" y1="80" x2="350" y2="170"/><line x1="150" y1="80" x2="550" y2="260"/><line x1="350" y1="170" x2="550" y2="260"/>
+                <line x1="350" y1="80" x2="150" y2="170"/><line x1="350" y1="80" x2="350" y2="260"/><line x1="150" y1="170" x2="350" y2="260"/>
+                <line x1="550" y1="80" x2="550" y2="170"/><line x1="550" y1="80" x2="150" y2="260"/><line x1="550" y1="170" x2="150" y2="260"/>
+              </g>
+              <polygon points="640,160 700,160 700,180 640,180 630,170" fill="#fecaca" stroke="#ef4444"/>
+              <polygon points="40,160 100,160 100,180 40,180 30,170" fill="#dcfce7" stroke="#16a34a"/>
+              <text x="70" y="175" text-anchor="middle">source</text><text x="670" y="174" text-anchor="middle">sink</text>
+              <g fill="#fff" stroke="#334155" stroke-width="1.5">
+                <rect x="110" y="64" width="76" height="32" rx="6" fill="#c7d2fe"/><rect x="310" y="64" width="76" height="32" rx="6" fill="#c7d2fe"/><rect x="510" y="64" width="76" height="32" rx="6" fill="#c7d2fe"/>
+                <rect x="110" y="154" width="76" height="32" rx="6" fill="#c7d2fe"/><rect x="310" y="154" width="76" height="32" rx="6" fill="#c7d2fe"/><rect x="510" y="154" width="76" height="32" rx="6" fill="#c7d2fe"/>
+                <rect x="110" y="244" width="76" height="32" rx="6" fill="#c7d2fe"/><rect x="310" y="244" width="76" height="32" rx="6" fill="#c7d2fe"/><rect x="510" y="244" width="76" height="32" rx="6" fill="#c7d2fe"/>
+              </g>
+              <g fill="#1e1b4b" text-anchor="middle">
+                <text x="148" y="84">O₁₁ M₁5</text><text x="348" y="84">O₁₂ M₂4</text><text x="548" y="84">O₁₃ M₃3</text>
+                <text x="148" y="174">O₂₁ M₂3</text><text x="348" y="174">O₂₂ M₁6</text><text x="548" y="174">O₂₃ M₃2</text>
+                <text x="148" y="264">O₃₁ M₃4</text><text x="348" y="264">O₃₂ M₂5</text><text x="548" y="264">O₃₃ M₁6</text>
+              </g>
+              <g font-size="10"><text x="620" y="40" fill="#334155">—— 合取弧（同工件）</text><text x="620" y="56" fill="#7c3aed">- - 析取弧（同机器）</text></g>
+            </g>
+          </svg>
+          <figcaption><strong>图 9-1</strong>　3×3 作业车间的析取图。每个节点是一次工序（O<sub>ij</sub>：工件 i 的第 j 道工序，标注机器与工时）。实线合取弧固定工件内部顺序；虚线析取弧连接同一机器上的工序，需选定方向。选定所有方向后，图中最长路径（关键路径）的长度就是 makespan。</figcaption>
+        </figure>
+
         <p>选定每个析取弧方向后，计算关键路径长度即是 makespan。例如选择顺序：M₁ 上 O₁₁→O₂₂→O₃₃，M₂ 上 O₂₁→O₁₂→O₃₂，M₃ 上 O₃₁→O₁₃→O₂₃，我们可以计算出关键路径。</p>
 
         <pre><code>析取图 — 关键路径识别
@@ -142,6 +189,20 @@ Source → O₁₁(5) → O₁₂(4) → O₁₃(3) → Sink
 实际上最终 makespan 可能更长，比如：
 Source → O₂₁(3)→O₁₂(4)→O₃₂(5)→O₃₃(6)→Sink
 长度 = 3+4+5+6 = 18</code></pre>
+
+        <div class="math-equation">
+          <span class="eq-label">式 9-1　析取图上的最长路径递推</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="最长路径递推式，可横向滚动">
+            <math display="block" aria-label="节点 v 的最长路径长度等于所有前驱 u 的 dist u 加边权 w(u,v) 的最大值">
+              <mrow>
+                <mi>dist</mi><mo>(</mo><mi>v</mi><mo>)</mo><mo>=</mo>
+                <munder><mo>max</mo><mrow><mi>u</mi><mo>∈</mo><mi>Pred</mi><mo>(</mo><mi>v</mi><mo>)</mo></mrow></munder>
+                <mrow><mo>{</mo><mi>dist</mi><mo>(</mo><mi>u</mi><mo>)</mo><mo>+</mo><mi>w</mi><mo>(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>)</mo><mo>}</mo></mrow>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">按拓扑序递推，最终 <math class="math-inline" aria-label="dist sink"><mi>dist</mi><mo>(</mo><mi>sink</mi><mo>)</mo></math> 即 makespan。<math class="math-inline" aria-label="w u v"><mi>w</mi><mo>(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>)</mo></math> 为节点 u 的加工时间。</p>
+        </div>
 
         <div class="highlight">
             <p><strong>关键洞察：</strong>在析取图中，<strong>只有关键路径上的操作才影响 makespan</strong>。非关键路径上的操作有缓冲时间（slack），即使它们稍微延迟，也不会影响最终完工时间。这告诉我们两件事：第一，调度优化的重点是压缩关键路径；第二，非关键路径上的操作可以作为"资源缓冲"来吸收不确定性。在后面的章节中，我们会利用这个性质来设计鲁棒调度方案。</p>
@@ -244,7 +305,7 @@ Source → O₂₁(3)→O₁₂(4)→O₃₂(5)→O₃₃(6)→Sink
             <a href="index.html">📖 返回目录</a>
             <a href="10.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

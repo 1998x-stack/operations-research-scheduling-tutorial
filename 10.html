@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第10章 作业车间调度（下）</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第10章 作业车间调度（下）</h1>
 
         <p>大家好，我是你们的讲师。上一章我们认识了 JSP 的基本模型和析取图工具。但知道问题是什么、会建模，和能解出答案——这中间还隔着一条巨大的鸿沟。就好比你知道要爬一座山，也看到了山在哪里，但真正难的是找到一条上山的路。</p>
@@ -70,6 +80,22 @@
             <li><strong>基于关键路径的下界：</strong>考虑工艺约束后，从源点到当前节点的最长路径长度。</li>
             <li><strong>调整后的下界：</strong>L = max(L₁, L₂, 关键路径长度) —— 综合取最大。</li>
         </ul>
+
+        <div class="math-equation">
+          <span class="eq-label">式 10-1　JSP 的综合下界</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="综合下界表达式，可横向滚动">
+            <math display="block" aria-label="下界等于工件总工时最大值、机器总负载最大值与关键路径长度三者中的最大值">
+              <mrow>
+                <mi>L</mi><mo>=</mo><mo>max</mo><mo>(</mo>
+                <munder><mo>max</mo><mi>j</mi></munder><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>p</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub>
+                <mo>,</mo><mspace width="0.5em"/>
+                <munder><mo>max</mo><mi>m</mi></munder><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mi>p</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.5em"/>
+                <mi>CP</mi><mo>)</mo>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><math class="math-inline" aria-label="p_ij"><msub><mi>p</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></math> 为第 i 个工件第 j 道工序的工时，<math class="math-inline" aria-label="CP"><mi>CP</mi></math> 为当前关键路径长度。下界越紧，剪枝越强。</p>
+        </div>
 
         <h3>3. 搜索策略（Search）</h3>
         <ul>
@@ -120,6 +146,36 @@
         将 C 加入 Q
 
   return 最优解</code></pre>
+
+        <figure>
+          <svg viewBox="0 0 760 380" role="img" aria-labelledby="fig10-title fig10-desc">
+            <title id="fig10-title">分枝定界的搜索树与剪枝</title>
+            <desc id="fig10-desc">从根节点展开，下界大于等于当前上界的节点被剪枝，只有下界较小的分支继续展开，最终找到一个更优的可行解。</desc>
+            <defs><marker id="fig10-a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#94a3b8"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <g stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#fig10-a)">
+                <line x1="380" y1="80" x2="260" y2="150"/><line x1="380" y1="80" x2="500" y2="150"/>
+                <line x1="250" y1="190" x2="170" y2="260"/><line x1="250" y1="190" x2="330" y2="260"/>
+                <line x1="160" y1="300" x2="160" y2="345"/>
+              </g>
+              <g stroke="#5b21b6" stroke-width="2.5" fill="#ede9fe">
+                <rect x="320" y="40" width="120" height="44" rx="10"/>
+                <rect x="200" y="150" width="120" height="44" rx="10"/>
+                <rect x="100" y="260" width="130" height="44" rx="10"/>
+                <rect x="110" y="345" width="120" height="42" rx="10" fill="#dcfce7" stroke="#16a34a"/>
+              </g>
+              <g fill="#3b0764" text-anchor="middle"><text x="380" y="67">根 LB=12</text><text x="260" y="177">u→v LB=13</text><text x="165" y="287">LB=14</text><text x="170" y="371" fill="#166534">解 Cmax=15</text></g>
+              <g stroke="#ef4444" stroke-width="2.5" fill="#f1f5f9">
+                <rect x="440" y="150" width="120" height="44" rx="10"/>
+                <rect x="270" y="260" width="120" height="44" rx="10"/>
+              </g>
+              <g fill="#64748b" text-anchor="middle"><text x="500" y="177">v→u LB=18</text><text x="330" y="287">LB=17</text></g>
+              <g stroke="#ef4444" stroke-width="3"><line x1="452" y1="162" x2="548" y2="182"/><line x1="548" y1="162" x2="452" y2="182"/><line x1="282" y1="272" x2="378" y2="292"/><line x1="378" y1="272" x2="282" y2="292"/></g>
+              <text x="620" y="120" fill="#b91c1c" font-size="11">剪枝：LB ≥ UB(=17)</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 10-1</strong>　分枝定界在 JSP 上的搜索树。每个节点固定一对析取弧的方向并计算下界 LB；当 <code>LB ≥ 当前上界 UB</code> 时剪枝（红叉）。找到可行解后更新 UB，搜索范围不断收窄。数值为构造的<b>教学示意</b>。</figcaption>
+        </figure>
 
         <h2>Shifting Bottleneck启发式 — 识别并优化瓶颈机器</h2>
 
@@ -249,7 +305,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="11.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

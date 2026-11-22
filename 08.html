@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第08章 流水车间调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +51,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第08章 流水车间调度</h1>
 
         <p>大家好，我是你们的讲师。上一章讲单机调度时，你可能觉得"不过如此"——一台机器，排个序而已，能有多难？那么现在我们把难度提升一个台阶：假设不是一台机器，而是五台机器排成一条线，每个工件都要依次经过这五台机器，而且加工路线一模一样——这就是<strong>流水车间（Flow Shop）</strong>。现在问题还简单吗？</p>
@@ -84,6 +94,20 @@
         </ol>
 
         <p>合并后的序列就是最优加工顺序。为什么？核心证明思路是：对于两机 Flow Shop，最优解一定是<strong>置换调度</strong>（两台机器上的工件顺序相同），而 Johnson 规则通过交换论证（adjacent pairwise interchange）可以证明其最优性。简洁、优美、高效——这就是经典算法的魅力。</p>
+
+        <div class="math-equation">
+          <span class="eq-label">式 8-1　两机流水车间的 makespan</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="两机流水车间 makespan 表达式，可横向滚动">
+            <math display="block" aria-label="最优 makespan 等于从 1 到 k 的 a 之和加上从 k 到 n 的 b 之和，对所有 k 取最大值">
+              <mrow>
+                <msub><mi>C</mi><mi>max</mi></msub><mo>=</mo>
+                <munder><mo>max</mo><mrow><mn>1</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi></mrow></munder>
+                <mrow><mo>(</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>≤</mo><mi>k</mi></mrow></munder><msub><mi>a</mi><mi>i</mi></msub><mo>+</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>≥</mo><mi>k</mi></mrow></munder><msub><mi>b</mi><mi>i</mi></msub><mo>)</mo></mrow>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><math class="math-inline" aria-label="a_i"><msub><mi>a</mi><mi>i</mi></msub></math> 为机器 1 工时，<math class="math-inline" aria-label="b_i"><msub><mi>b</mi><mi>i</mi></msub></math> 为机器 2 工时（按已定顺序）。取 max 是因为机器 2 可能因上游未完工而等待。</p>
+        </div>
 
         <h3>手工计算示例：5 工件 × 2 机器</h3>
 
@@ -150,6 +174,38 @@
 Makespan = max(26, 28) = 28
 
 如果尝试顺序 A→B→C→D→E，计算可得 makespan = 32</code></pre>
+
+        <figure>
+          <svg viewBox="0 0 760 300" role="img" aria-labelledby="fig8-title fig8-desc">
+            <title id="fig8-title">Johnson 最优顺序 B-D-C-E-A 的两机甘特图</title>
+            <desc id="fig8-desc">机器 1 依次加工 B、D、C、E、A，机器 2 存在若干空闲间隙，最终 makespan 为 28。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <line x1="70" y1="250" x2="700" y2="250" stroke="#334155" stroke-width="2"/>
+              <g fill="#64748b" text-anchor="middle"><text x="70" y="268">0</text><text x="158" y="268">4</text><text x="246" y="268">8</text><text x="334" y="268">12</text><text x="422" y="268">16</text><text x="510" y="268">20</text><text x="598" y="268">24</text><text x="686" y="268">28</text></g>
+              <text x="20" y="105" fill="#334155" font-weight="700">机器 1</text>
+              <g stroke="#fff" stroke-width="2">
+                <rect x="70" y="82" width="66" height="40" fill="#14b8a6"/>
+                <rect x="136" y="82" width="88" height="40" fill="#ef4444"/>
+                <rect x="224" y="82" width="176" height="40" fill="#8b5cf6"/>
+                <rect x="400" y="82" width="132" height="40" fill="#0ea5e9"/>
+                <rect x="532" y="82" width="110" height="40" fill="#f59e0b"/>
+              </g>
+              <g fill="#fff" text-anchor="middle"><text x="103" y="107">B</text><text x="180" y="107">D</text><text x="312" y="107">C</text><text x="466" y="107">E</text><text x="587" y="107">A</text></g>
+              <text x="20" y="195" fill="#334155" font-weight="700">机器 2</text>
+              <g stroke="#fff" stroke-width="2">
+                <rect x="136" y="172" width="132" height="40" fill="#14b8a6"/>
+                <rect x="268" y="172" width="110" height="40" fill="#ef4444"/>
+                <rect x="400" y="172" width="88" height="40" fill="#8b5cf6"/>
+                <rect x="532" y="172" width="66" height="40" fill="#0ea5e9"/>
+                <rect x="642" y="172" width="44" height="40" fill="#f59e0b"/>
+              </g>
+              <g fill="#fff" text-anchor="middle"><text x="202" y="197">B</text><text x="323" y="197">D</text><text x="444" y="197">C</text><text x="565" y="197">E</text><text x="664" y="197">A</text></g>
+              <g fill="#cbd5e1"><rect x="378" y="172" width="22" height="40"/><rect x="488" y="172" width="44" height="40"/><rect x="598" y="172" width="44" height="40"/></g>
+              <text x="600" y="60" fill="#6b7280">灰色=机器 2 空闲</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 8-1</strong>　Johnson 顺序 <code>B→D→C→E→A</code> 的两机甘特图。工件在机器 1 上以 B(3) D(4) C(8) E(6) A(5) 的顺序加工；机器 2 需在工件完成机器 1 后才能开工，因此出现三段空闲，最终 <code>Cmax = 28</code>。数据直接取自本章示例表。</figcaption>
+        </figure>
 
         <table>
             <thead>
@@ -300,7 +356,7 @@ Makespan = max(26, 28) = 28
             <a href="index.html">📖 返回目录</a>
             <a href="09.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
