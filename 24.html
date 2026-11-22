@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第24章 图神经网络与调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第24章 图神经网络与调度</h1>
 
         <p>大家好，我是你们的讲师。上一章我们讨论了强化学习调度，核心是把调度问题建模为 MDP，然后训练一个智能体来做出序贯决策。但你有没有想过一个问题：我们用全连接网络或 CNN 来处理调度状态，真的合理吗？调度问题的状态天然是<strong>图结构</strong>——工件之间有工艺顺序约束，机器之间有加工依赖关系，工件和机器之间又有分配关系。强制把这么丰富的结构信息拍扁成一个固定长度的向量，其实是信息损失很大的操作。</p>
@@ -72,6 +85,41 @@
         <h2>GNN基础：消息传递与图嵌入</h2>
 
         <p>GNN 的核心机制是<strong>消息传递（Message Passing）</strong>。每一层中，每个节点会收到来自其邻居节点的信息，聚合这些信息后更新自己的嵌入表示。经过若干层之后，每个节点的表示就包含了 k 跳邻域的结构信息。</p>
+
+        <div class="math-equation">
+          <span class="eq-label">式 24-1　消息传递（Message Passing）</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="消息传递公式，可横向滚动">
+            <math display="block" aria-label="第 k 层节点 v 的嵌入等于一个更新函数，作用于上一层的自身嵌入与所有邻居消息的聚合">
+              <mrow>
+                <msubsup><mi>h</mi><mi>v</mi><mrow><mo>(</mo><mi>k</mi><mo>)</mo></mrow></msubsup><mo>=</mo>
+                <mi>φ</mi><mrow><mo>(</mo><msubsup><mi>h</mi><mi>v</mi><mrow><mo>(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo>)</mo></mrow></msubsup><mo>,</mo><mspace width="0.4em"/><munder><mo>⊕</mo><mrow><mi>u</mi><mo>∈</mo><mi>N</mi><mo>(</mo><mi>v</mi><mo>)</mo></mrow></munder><mspace width="0.4em"/><mi>ψ</mi><mrow><mo>(</mo><msubsup><mi>h</mi><mi>u</mi><mrow><mo>(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo>)</mo></mrow></msubsup><mo>)</mo></mrow><mo>)</mo></mrow>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><math class="math-inline" aria-label="psi"><mi>ψ</mi></math> 为邻居消息函数，<math class="math-inline" aria-label="圈加"><mo>⊕</mo></math> 为置换不变的聚合（sum / mean / max），<math class="math-inline" aria-label="phi"><mi>φ</mi></math> 为更新函数。聚合的置换不变性是 GNN 能泛化到任意图结构的关键。</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 700 300" role="img" aria-labelledby="fig24-title fig24-desc">
+            <title id="fig24-title">节点聚合邻居消息更新自身嵌入</title>
+            <desc id="fig24-desc">中心节点收集多个邻居节点的嵌入向量，经聚合与更新后得到新的嵌入。</desc>
+            <defs><marker id="fig24-a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#0ea5e9"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <g stroke="#0ea5e9" stroke-width="2" fill="none" marker-end="url(#fig24-a)">
+                <line x1="205" y1="80" x2="326" y2="146"/><line x1="185" y1="200" x2="324" y2="172"/>
+                <line x1="505" y1="85" x2="378" y2="146"/><line x1="525" y1="205" x2="378" y2="174"/>
+              </g>
+              <g fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"><circle cx="180" cy="70" r="26"/><circle cx="160" cy="200" r="26"/><circle cx="530" cy="75" r="26"/><circle cx="550" cy="205" r="26"/></g>
+              <g text-anchor="middle" fill="#0c4a6e" font-size="11"><text x="180" y="74">h_u₁</text><text x="160" y="204">h_u₂</text><text x="530" y="79">h_u₃</text><text x="550" y="209">h_u₄</text></g>
+              <circle cx="350" cy="160" r="34" fill="#ede9fe" stroke="#8b5cf6" stroke-width="3"/>
+              <text x="350" y="150" text-anchor="middle" fill="#4c1d95" font-size="10">中心节点</text>
+              <g fill="#4c1d95" text-anchor="middle" font-size="13"><text x="350" y="172">h_v</text></g>
+              <text x="350" y="228" text-anchor="middle" fill="#5b21b6" font-weight="700">更新后 → h_v′</text>
+              <text x="350" y="256" text-anchor="middle" fill="#6b7280">聚合函数 ⊕ 与更新函数 φ</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 24-1</strong>　GNN 的一层消息传递。中心节点 <code>h_v</code> 收集其邻居 <code>h_u₁…h_u₄</code> 的消息，先经消息函数 <code>ψ</code>，再以置换不变的聚合 <code>⊕</code> 合并，最后经更新函数 <code>φ</code> 得到新嵌入。<code>k</code> 层堆叠后可覆盖 <code>k</code> 跳邻域。</figcaption>
+        </figure>
 
         <h3>Graph Convolution, Graph Attention, Graph Isomorphism Network</h3>
 
@@ -276,7 +324,7 @@ print("工序优先级分数:", priority_scores)
             <a href="index.html">📖 返回目录</a>
             <a href="25.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

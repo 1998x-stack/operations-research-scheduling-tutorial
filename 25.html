@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第25章 大模型与运筹优化</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第25章 大模型与运筹优化</h1>
 
         <p>大家好，我是你们的讲师。走到这一章，你可能会有一种"画风突变"的感觉——我们前面二十多章都在讨论数学模型、求解算法和调度方法，怎么突然跳到"大模型"上了？大语言模型（LLM）不是用来聊天、写代码和生成文案的吗，跟运筹学有什么关系？</p>
@@ -62,6 +75,34 @@
         <div class="highlight">
             <p><strong>核心认知：</strong>ORLM 不只是在做"翻译"——它不是把中文翻译成 Gurobi 代码。它在做的是<strong>建模推理</strong>：理解实际约束，判断哪些约束是关键的、哪些可以松弛，然后将其形式化为数学表达式。这需要比"代码生成"更深层次的数学理解能力。</p>
         </div>
+
+        <figure>
+          <svg viewBox="0 0 700 330" role="img" aria-labelledby="fig25-title fig25-desc">
+            <title id="fig25-title">大模型辅助运筹建模与自进化训练闭环</title>
+            <desc id="fig25-desc">自然语言需求经大模型生成模型与代码，求解器执行后校验结果，不合理时生成修正信号回传改进。</desc>
+            <defs><marker id="fig25-a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#7c3aed"/></marker><marker id="fig25-r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#dc2626"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <g stroke-width="2">
+                <rect x="24" y="50" width="140" height="62" rx="10" fill="#ede9fe" stroke="#8b5cf6"/>
+                <rect x="210" y="50" width="170" height="62" rx="10" fill="#e0e7ff" stroke="#6366f1"/>
+                <rect x="426" y="50" width="140" height="62" rx="10" fill="#e0f2fe" stroke="#0ea5e9"/>
+                <rect x="426" y="190" width="140" height="62" rx="10" fill="#dcfce7" stroke="#16a34a"/>
+                <rect x="600" y="190" width="84" height="62" rx="10" fill="#fef3c7" stroke="#f59e0b"/>
+              </g>
+              <g text-anchor="middle" fill="#1e293b"><text x="94" y="78">自然语言</text><text x="94" y="96">需求描述</text>
+                <text x="295" y="78">ORLM 建模推理</text><text x="295" y="96">生成模型+代码</text>
+                <text x="496" y="78">求解器执行</text><text x="496" y="96">（Gurobi/CP-SAT）</text>
+                <text x="496" y="218">结果校验</text><text x="496" y="236">语法/数学/可行</text>
+                <text x="642" y="218">可用</text><text x="642" y="236">方案</text></g>
+              <g stroke="#7c3aed" stroke-width="2" fill="none" marker-end="url(#fig25-a)">
+                <line x1="164" y1="81" x2="208" y2="81"/><line x1="380" y1="81" x2="424" y2="81"/><line x1="496" y1="112" x2="496" y2="188"/><line x1="566" y1="221" x2="598" y2="221"/>
+              </g>
+              <path d="M426,240 C300,300 200,180 286,116" stroke="#dc2626" stroke-width="2" stroke-dasharray="7 5" fill="none" marker-end="url(#fig25-r)"/>
+              <text x="250" y="290" fill="#b91c1c">修正信号（过程监督 / 自进化训练）</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 25-1</strong>　大模型辅助运筹建模的闭环。自然语言需求经 ORLM 推理为数学模型与代码，交由求解器执行，再对结果做语法、数学与可行性校验；不合理时把修正信号回传，逐步从“语法正确”逼近“数学正确”。右侧为可直接使用的方案。</figcaption>
+        </figure>
 
         <h2>LLM在运筹学中的应用场景</h2>
 
@@ -258,7 +299,7 @@ if model.Status == GRB.OPTIMAL:
             <a href="index.html">📖 返回目录</a>
             <a href="26.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

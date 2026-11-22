@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第23章 强化学习调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第23章 强化学习调度</h1>
 
         <p>大家好，我是你们的讲师。在之前十几章里，我们学习了精确求解方法、元启发式算法、约束规划——这些方法各有所长，但它们共享一个前提：<strong>问题模型是静态的</strong>，输入给定之后算法跑一遍，输出一个方案，完事。但现实世界不是这样的——机器会突然故障，新订单会随时插单，原材料可能延迟到货。当你面对一个不断变化的环境，你需要一种能<strong>边做边学、动态调整</strong>的方法。</p>
@@ -72,6 +85,29 @@
         <h2>调度问题的MDP建模</h2>
 
         <p>要用 RL 解决调度问题，第一步是把调度问题形式化为<strong>马尔可夫决策过程（Markov Decision Process, MDP）</strong>。MDP 由五元组 (S, A, P, R, γ) 定义，其中最关键的是状态、动作和奖励的设计。下面我们逐一展开。</p>
+
+        <figure>
+          <svg viewBox="0 0 700 300" role="img" aria-labelledby="fig23-title fig23-desc">
+            <title id="fig23-title">调度强化学习的智能体–环境交互循环</title>
+            <desc id="fig23-desc">智能体基于状态选择动作，环境执行动作后返回奖励与新状态，循环推进调度。</desc>
+            <defs><marker id="fig23-a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#7c3aed"/></marker><marker id="fig23-b" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#0ea5e9"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="13">
+              <rect x="240" y="40" width="220" height="72" rx="12" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="350" y="72" text-anchor="middle" font-weight="700" fill="#5b21b6">智能体 Agent</text>
+              <text x="350" y="94" text-anchor="middle" fill="#3b0764" font-size="11">策略 π(a|s) 或 Q(s,a)</text>
+              <rect x="240" y="190" width="220" height="72" rx="12" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+              <text x="350" y="222" text-anchor="middle" font-weight="700" fill="#075985">环境 Environment</text>
+              <text x="350" y="244" text-anchor="middle" fill="#0c4a6e" font-size="11">在制品 · 机器 · 队列</text>
+              <line x1="300" y1="112" x2="300" y2="188" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#fig23-a)"/>
+              <text x="292" y="155" text-anchor="end" fill="#5b21b6" font-size="11">动作 aₜ</text>
+              <path d="M460,200 C560,200 560,70 460,70" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#fig23-b)"/>
+              <text x="572" y="140" fill="#0369a1" font-size="11">状态 sₜ₊₁</text>
+              <text x="572" y="156" fill="#0369a1" font-size="11">奖励 rₜ</text>
+              <text x="120" y="70" fill="#6b7280" font-size="11">一次“决策 → 执行”</text><text x="120" y="86" fill="#6b7280" font-size="11">＝ 安排一个后续工序</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 23-1</strong>　RL 调度将排程建模为序贯决策。智能体观察状态 <code>sₜ</code> 后选择动作（如“下一个加工哪个工件”或“用哪条派工规则”），环境执行后返回奖励与下一状态，循环直至所有工序完成。</figcaption>
+        </figure>
 
         <h3>状态设计：机器状态、工件状态、全局特征的拼接</h3>
 
@@ -142,6 +178,20 @@ state = {
         <h3>DQN：用神经网络逼近Q值</h3>
 
         <p>Deep Q-Network（DQN）是 DeepMind 在 2013 年提出的经典方法，首次将深度神经网络与 Q-learning 结合。在调度场景中，DQN 学习一个 Q 函数 Q(s, a)，表示在状态 s 下执行动作 a 后能得到的期望累计奖励。算法维护两个网络（online network 和 target network），使用经验回放（experience replay）来稳定训练。</p>
+
+        <div class="math-equation">
+          <span class="eq-label">式 23-1　Q-learning 更新规则</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="Q-learning 更新规则，可横向滚动">
+            <math display="block" aria-label="Q(s,a) 更新为原值加上学习率乘目标减当前值，目标为即时奖励加折扣因子乘下一状态最大 Q 值">
+              <mrow>
+                <mi>Q</mi><mo>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo>)</mo><mo>←</mo>
+                <mi>Q</mi><mo>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo>)</mo><mo>+</mo><mi>α</mi>
+                <mrow><mo>[</mo><mi>r</mi><mo>+</mo><mi>γ</mi><munder><mo>max</mo><msup><mi>a</mi><mo>′</mo></msup></munder><mi>Q</mi><mo>(</mo><msup><mi>s</mi><mo>′</mo></msup><mo>,</mo><msup><mi>a</mi><mo>′</mo></msup><mo>)</mo><mo>−</mo><mi>Q</mi><mo>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo>)</mo><mo>]</mo></mrow>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><math class="math-inline" aria-label="alpha"><mi>α</mi></math> 为学习率，<math class="math-inline" aria-label="gamma"><mi>γ</mi></math> 为折扣因子，<math class="math-inline" aria-label="r"><mi>r</mi></math> 为即时奖励。<math class="math-inline" aria-label="s 撇"><msup><mi>s</mi><mo>′</mo></msup></math> 为执行后到达的下一状态。</p>
+        </div>
 
         <p>DQN 适合<strong>离散动作空间</strong>的调度问题，如上面的"选择派工规则"范式。它已经在单机调度、Job Shop 调度等场景中取得了不错的效果。但它无法处理连续动作空间，且在大动作空间下性能会显著下降。</p>
 
@@ -285,7 +335,7 @@ class SchedulingEnv(gym.Env):
             <a href="index.html">📖 返回目录</a>
             <a href="24.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

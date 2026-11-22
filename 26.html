@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第26章 数字孪生与智能调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第26章 数字孪生与智能调度</h1>
 
         <p>大家好，我是你们的讲师。上一章我们探讨了大模型（LLM）与运筹优化的结合。今天的话题——<strong>数字孪生（Digital Twin）</strong>——可以说是在另一个维度上推动调度智能化。如果说大模型给调度带来了"思考"的能力，那么数字孪生给调度带来了"感知"的能力。两者结合，就是调度系统的大脑加感官。</p>
@@ -80,6 +93,31 @@
             <li><strong>孪生模型层（Twin Modeling Layer）</strong>：构建物理系统的虚拟镜像。这一层既要包含<strong>结构化模型</strong>（设备拓扑、工艺流程关系），也要包含<strong>行为模型</strong>（加工时间分布、设备退化曲线、物料流动规则）。</li>
             <li><strong>决策优化层（Decision Optimization Layer）</strong>：基于孪生模型提供的当前状态和预测信息，调用调度引擎（CP-SAT、GA、RL 等）生成优化方案，并将方案推送到 MES 或现场执行系统。</li>
         </ul>
+
+        <figure>
+          <svg viewBox="0 0 700 300" role="img" aria-labelledby="fig26-title fig26-desc">
+            <title id="fig26-title">数字孪生调度的物理–虚拟双向闭环</title>
+            <desc id="fig26-desc">传感器采集的物理数据上行为虚拟模型提供实时状态，下行将优化后的调度指令回传现场执行。</desc>
+            <defs><marker id="fig26-u" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#0ea5e9"/></marker><marker id="fig26-d" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#16a34a"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="13">
+              <rect x="50" y="90" width="210" height="130" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+              <text x="155" y="125" text-anchor="middle" font-weight="700" fill="#166534">物理系统</text>
+              <text x="155" y="152" text-anchor="middle" fill="#14532d" font-size="11">设备 · 在制品 · 现场</text>
+              <text x="155" y="182" text-anchor="middle" fill="#14532d" font-size="11">传感器 / PLC / RFID</text>
+              <rect x="440" y="90" width="210" height="130" rx="14" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+              <text x="545" y="125" text-anchor="middle" font-weight="700" fill="#075985">数字孪生</text>
+              <text x="545" y="152" text-anchor="middle" fill="#0c4a6e" font-size="11">孪生模型 + 优化引擎</text>
+              <text x="545" y="182" text-anchor="middle" fill="#0c4a6e" font-size="11">CP-SAT / GA / RL</text>
+              <line x1="264" y1="120" x2="436" y2="120" stroke="#0ea5e9" stroke-width="2.5" marker-end="url(#fig26-u)"/>
+              <line x1="436" y1="190" x2="264" y2="190" stroke="#16a34a" stroke-width="2.5" marker-end="url(#fig26-d)"/>
+              <text x="350" y="112" text-anchor="middle" fill="#0369a1" font-size="11">实时数据（what-is）↑</text>
+              <text x="350" y="210" text-anchor="middle" fill="#15803d" font-size="11">↓ 优化指令 / 重调度</text>
+              <text x="350" y="160" text-anchor="middle" fill="#6b7280" font-size="11">偏差检测 → 触发优化 → 更新排程</text>
+              <text x="350" y="265" text-anchor="middle" fill="#475569" font-size="11">持续校准：用实际执行数据修正孪生参数</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 26-1</strong>　数字孪生的双向闭环。上行：IoT 传感器把真实状态同步到虚拟模型（what-is）；下行：优化引擎把重调度指令推回现场。区别传统仿真的关键就在于这条闭环回路与持续校准。</figcaption>
+        </figure>
 
         <p>在孪生模型层，工业界常用的建模框架有三种：</p>
 
@@ -253,7 +291,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="27.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
