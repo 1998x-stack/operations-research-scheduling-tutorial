@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第22章 资源约束项目调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第22章 资源约束项目调度</h1>
 
         <p>大家好，我是你们的讲师。我们之前讨论的调度问题——无论是单机、流水车间还是作业车间——都有一个共同特点：<strong>所有工件都要经过几乎相同的机器集合</strong>。但在项目管理的世界里，情况完全不同。想象一下你负责一个地铁建设项目：你需要完成隧道掘进、车站施工、轨道铺设、信号系统安装、通风设备调试……这些活动不是在一个固定的机器集合上重复加工，而是组成了一张<strong>复杂的活动网络图（Activity Network）</strong>——某些活动必须在前序活动完成后才能开始，每种活动需要不同种类和数量的资源（工人、设备、材料），而每种资源的总量是有限。</p>
@@ -75,7 +88,47 @@
   S₀ = 0                                  // 项目从 0 时刻开始
   Sⱼ ≥ 0                                  // 非负</code></pre>
 
+        <div class="math-equation">
+          <span class="eq-label">式 22-1　RCPSP 的标准模型</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="RCPSP 标准模型，可横向滚动">
+            <math display="block" aria-label="最小化虚拟结束活动的开始时间；时序约束与资源约束">
+              <mtable>
+                <mtr><mtd><mo>min</mo><mspace width="0.5em"/><msub><mi>S</mi><mrow><mi>N</mi><mo>+</mo><mn>1</mn></mrow></msub></mtd></mtr>
+                <mtr><mtd><mtext>s.t.</mtext><mspace width="0.5em"/><msub><mi>S</mi><mi>i</mi></msub><mo>+</mo><msub><mi>d</mi><mi>i</mi></msub><mo>≤</mo><msub><mi>S</mi><mi>j</mi></msub><mspace width="1em"/><mo>∀</mo><mo>(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo>)</mo><mo>∈</mo><mi>E</mi></mtd></mtr>
+                <mtr><mtd><munder><mo>∑</mo><mrow><mi>j</mi><mo>:</mo><msub><mi>S</mi><mi>j</mi></msub><mo>≤</mo><mi>t</mi><mo>&lt;</mo><msub><mi>S</mi><mi>j</mi></msub><mo>+</mo><msub><mi>d</mi><mi>j</mi></msub></mrow></munder><msub><mi>r</mi><mrow><mi>j</mi><mi>k</mi></mrow></msub><mo>≤</mo><msub><mi>R</mi><mi>k</mi></msub><mspace width="1em"/><mo>∀</mo><mi>k</mi><mo>,</mo><mi>t</mi></mtd></mtr>
+              </mtable>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">资源约束要求在任意时刻 <math class="math-inline" aria-label="t"><mi>t</mi></math>，正在进行的活动对每种可更新资源 <math class="math-inline" aria-label="k"><mi>k</mi></math> 的消耗不超过可用量 <math class="math-inline" aria-label="R_k"><msub><mi>R</mi><mi>k</mi></msub></math>。</p>
+        </div>
+
         <p>这只是一个简单的公式表述。实际工程中，RCPSP 有数十种变体：多模式 RCPSP（每个活动可以在多种"工期-资源"组合中选择）、带时间窗的 RCPSP、带现金流优化的 RCPSP 等。RCPSP 及其变体构成了项目管理运筹学的核心内容，被广泛应用于 Primavera P6、Microsoft Project 等项目管理软件中。</p>
+
+        <figure>
+          <svg viewBox="0 0 700 320" role="img" aria-labelledby="fig22-title fig22-desc">
+            <title id="fig22-title">活动网络图与资源负载剖面</title>
+            <desc id="fig22-desc">上方为带时序约束的活动网络，下方为对应时刻的资源占用阶梯线，始终不超过容量四。</desc>
+            <defs><marker id="fig22-a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#334155"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <g stroke="#334155" stroke-width="2" fill="none" marker-end="url(#fig22-a)">
+                <line x1="112" y1="100" x2="214" y2="68"/><line x1="112" y1="120" x2="214" y2="152"/>
+                <line x1="266" y1="60" x2="374" y2="100"/><line x1="266" y1="160" x2="374" y2="122"/>
+                <line x1="424" y1="110" x2="534" y2="110"/>
+              </g>
+              <g fill="#ede9fe" stroke="#8b5cf6" stroke-width="2">
+                <circle cx="90" cy="110" r="24"/><circle cx="240" cy="60" r="24"/><circle cx="240" cy="160" r="24"/><circle cx="400" cy="110" r="24"/><circle cx="560" cy="110" r="24"/>
+              </g>
+              <g text-anchor="middle" font-weight="700" fill="#4c1d95"><text x="90" y="115">A</text><text x="240" y="65">B</text><text x="240" y="165">C</text><text x="400" y="115">D</text><text x="560" y="115">E</text></g>
+              <g fill="#6b7280" font-size="10" text-anchor="middle"><text x="90" y="148">d2 r3</text><text x="240" y="24">d3 r2</text><text x="240" y="198">d2 r2</text><text x="400" y="148">d4 r3</text><text x="560" y="148">d2 r1</text></g>
+              <text x="300" y="220" text-anchor="middle" fill="#0369a1" font-weight="700">资源占用剖面（容量 R = 4）</text>
+              <path d="M80,300 L80,240 L176,240 L176,220 L272,220 L272,260 L320,260 L320,240 L512,240 L512,280 L608,280 L608,300 Z" fill="#bae6fd" stroke="#0ea5e9" stroke-width="2"/>
+              <line x1="80" y1="220" x2="608" y2="220" stroke="#ef4444" stroke-width="2" stroke-dasharray="6 4"/>
+              <text x="612" y="224" fill="#b91c1c" font-size="11">R=4</text>
+              <text x="120" y="235" font-size="11" fill="#0369a1">3</text><text x="215" y="215" font-size="11" fill="#0369a1">4</text><text x="378" y="235" font-size="11" fill="#0369a1">3</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 22-1</strong>　RCPSP 的双重约束。上方活动网络（节点旁标 d 工期 / r 资源需求）给出时序关系；下方资源剖面显示同一时刻正在进行的活动资源消耗之和，红色虚线为容量上限 <code>R=4</code>。一旦方案使某时刻占用超过 <code>R</code> 便不可行。工期与资源为教学示意。</figcaption>
+        </figure>
 
         <h2>调度生成方案(SGS) — RCPSP的核心构造方法</h2>
 
@@ -259,7 +312,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="23.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

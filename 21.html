@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第21章 多目标调度优化</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第21章 多目标调度优化</h1>
 
         <p>大家好，我是你们的讲师。我们在前面 20 章里讨论的所有调度问题，在数学上都有一个共同点：<strong>一个明确的目标函数</strong>——最小化 makespan、最小化总加权完工时间、最小化最大延迟。但在真实世界里，一个调度方案的好坏从来不是一个单一数字能衡量的。</p>
@@ -121,6 +134,42 @@
             <li>一个解 x* 被称为<strong>Pareto 最优解（或非支配解）</strong>，如果不存在任何可行解能支配它。</li>
             <li>所有 Pareto 最优解在目标空间中的像称为<strong>Pareto 前沿（Pareto Front）</strong>。</li>
         </ul>
+
+        <div class="math-equation">
+          <span class="eq-label">式 21-1　支配关系的形式定义</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="支配关系定义式，可横向滚动">
+            <math display="block" aria-label="x 支配 y 当且仅当对所有目标 i，f_i(x) 不劣于 f_i(y)，且存在某个目标 j 严格更优">
+              <mrow>
+                <mi>x</mi><mo>≺</mo><mi>y</mi><mspace width="0.8em"/><mo>⇔</mo><mspace width="0.8em"/>
+                <msub><mo>∀</mo><mi>i</mi></msub><mspace width="0.3em"/><msub><mi>f</mi><mi>i</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>≤</mo><msub><mi>f</mi><mi>i</mi></msub><mo>(</mo><mi>y</mi><mo>)</mo>
+                <mspace width="0.6em"/><mo>∧</mo><mspace width="0.6em"/>
+                <msub><mo>∃</mo><mi>j</mi></msub><mspace width="0.3em"/><msub><mi>f</mi><mi>j</mi></msub><mo>(</mo><mi>x</mi><mo>)</mo><mo>&lt;</mo><msub><mi>f</mi><mi>j</mi></msub><mo>(</mo><mi>y</mi><mo>)</mo>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">此处以最小化为约定。“存在某个 <math class="math-inline" aria-label="j"><mi>j</mi></math> 严格更优”是支配区别于“不劣”的关键。</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 700 320" role="img" aria-labelledby="fig21-title fig21-desc">
+            <title id="fig21-title">目标空间中的 Pareto 前沿</title>
+            <desc id="fig21-desc">左上区域为被支配解，左下弧形上的点为非支配的 Pareto 前沿。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <line x1="70" y1="270" x2="640" y2="270" stroke="#334155" stroke-width="2"/>
+              <line x1="70" y1="270" x2="70" y2="40" stroke="#334155" stroke-width="2"/>
+              <text x="648" y="274" fill="#334155">f₁ →</text><text x="40" y="36" fill="#334155">f₂</text>
+              <polyline points="120,250 160,225 210,205 270,188 340,175 420,166 510,160" fill="none" stroke="#7c3aed" stroke-width="3"/>
+              <g fill="#7c3aed"><circle cx="120" cy="250" r="6"/><circle cx="160" cy="225" r="6"/><circle cx="210" cy="205" r="6"/><circle cx="270" cy="188" r="6"/><circle cx="340" cy="175" r="6"/><circle cx="420" cy="166" r="6"/><circle cx="510" cy="160" r="6"/></g>
+              <g fill="#94a3b8"><circle cx="180" cy="150" r="6"/><circle cx="260" cy="120" r="6"/><circle cx="360" cy="115" r="6"/><circle cx="300" cy="165" r="6"/></g>
+              <line x1="260" y1="120" x2="255" y2="182" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#fig21d)"/>
+              <defs><marker id="fig21d" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#ef4444"/></marker></defs>
+              <text x="300" y="132" fill="#64748b">被支配解（可同时改善）</text>
+              <text x="120" y="300" fill="#5b21b6" font-weight="700">Pareto 前沿（非支配解）</text>
+              <text x="180" y="175" fill="#b91c1c" font-size="11">支配方向（越小越好）</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 21-1</strong>　目标空间中最小化两个目标。紫色弧线上的解互不支配，构成 Pareto 前沿；灰色点均被前沿上的某个解支配（红色虚线箭头的方向表示同时更低）。多目标优化的目标就是求出一组分布均匀的前沿解，供决策者按偏好选择。</figcaption>
+        </figure>
 
         <p>用一个通俗的比喻：如果你是一个调度员，你找到了一个方案 A——makespan 是 100 小时，能耗是 5000 kWh。另一个方案 B——makespan 是 95 小时，能耗是 5200 kWh。那么 A 和 B 互相不支配——A 能耗更低，B 时间更短。它们都是 Pareto 最优解（假设没有其他目标更好的方案）。你选择哪一个，取决于业务方更看重时间还是能耗。</p>
 
@@ -252,7 +301,7 @@ s.t. fᵢ(x) + dᵢ⁻ - dᵢ⁺ = gᵢ,   ∀i
             <a href="index.html">📖 返回目录</a>
             <a href="22.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

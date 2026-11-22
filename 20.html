@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第20章 鲁棒调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第20章 鲁棒调度</h1>
 
         <p>大家好，我是你们的讲师。上一章我们讨论了随机调度——用概率分布来刻画不确定性，在期望意义下寻找最优解。但现实中有一种更棘手的情况：<strong>你根本不知道分布长什么样</strong>。新投产的产线，历史数据不够建模；老产线换了新型号，加工时间变了；或者供应商的供应链变化了，到货时间不再是过去的规律了。当分布未知时，随机规划就像在没有地图的森林里走路——你算出来的"期望最优解"可能是错误的。</p>
@@ -64,6 +77,19 @@
 
   s.t.  g(x, ξ) ≤ 0,  ∀ ξ ∈ U</code></pre>
 
+        <div class="math-equation">
+          <span class="eq-label">式 20-1　鲁棒对等问题</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="鲁棒对等问题，可横向滚动">
+            <math display="block" aria-label="在 x 上最小化，在不确定集 U 内的参数 xi 上最大化，目标函数 f(x,xi)；约束 g(x,xi) 对所有 xi 属于 U 成立">
+              <mtable>
+                <mtr><mtd><munder><mo>min</mo><mi>x</mi></munder><mspace width="0.4em"/><munder><mo>max</mo><mrow><mi>ξ</mi><mo>∈</mo><mi>U</mi></mrow></munder><mspace width="0.4em"/><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>ξ</mi><mo>)</mo></mtd></mtr>
+                <mtr><mtd><mtext>s.t.</mtext><mspace width="0.6em"/><mi>g</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>ξ</mi><mo>)</mo><mo>≤</mo><mn>0</mn><mo>,</mo><mspace width="0.6em"/><mo>∀</mo><mi>ξ</mi><mo>∈</mo><mi>U</mi></mtd></mtr>
+              </mtable>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">约束必须在整个不确定集 <math class="math-inline" aria-label="U"><mi>U</mi></math> 上同时成立；不确定集越大，解越稳但越保守。</p>
+        </div>
+
         <p>约束 g(x, ξ) ≤ 0 必须在整个不确定集 U 上同时成立——这意味着调度方案必须对所有可能的不确定性实现都可行。目标函数 f(x, ξ) 要最小化最坏情况下的目标值。</p>
 
         <p>常见的三种不确定集包括：</p>
@@ -73,6 +99,27 @@
             <li><strong>椭球不确定集（Ellipsoidal Uncertainty Set）</strong>：(ξ - μ)ᵀ Σ⁻¹ (ξ - μ) ≤ Γ。椭球集通过协方差结构描述了参数之间的相关性，且通常可以转化为二阶锥约束，求解方便。</li>
             <li><strong>预算不确定集（Budgeted Uncertainty Set / Bertsimas-Sim）</strong>：{ ξ | |ξᵢ - μᵢ| ≤ σᵢ, Σ |ξᵢ - μᵢ| / σᵢ ≤ Γ }。Bertsimas 和 Sim 在 2004 年提出的关键创新——通过预算参数 Γ 控制最多有多少个参数会同时偏离其名义值。Γ = 0 对应确定性优化，Γ = n 对应极端保守的盒式集。调整 Γ 可以在鲁棒性和最优性之间灵活折中。</li>
         </ul>
+
+        <figure>
+          <svg viewBox="0 0 700 300" role="img" aria-labelledby="fig20-title fig20-desc">
+            <title id="fig20-title">盒式、椭球与预算不确定集</title>
+            <desc id="fig20-desc">三种不确定集围绕同一名义点：盒式为方形，椭球为椭圆，预算集为菱形，保守程度依次递减。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <rect x="240" y="60" width="220" height="200" fill="#fef3c7" fill-opacity="0.35" stroke="#f59e0b" stroke-width="2" stroke-dasharray="7 5"/>
+              <ellipse cx="350" cy="160" rx="120" ry="70" fill="#dbeafe" fill-opacity="0.5" stroke="#0ea5e9" stroke-width="2"/>
+              <polygon points="350,90 460,160 350,230 240,160" fill="#dcfce7" fill-opacity="0.5" stroke="#16a34a" stroke-width="2"/>
+              <circle cx="350" cy="160" r="6" fill="#7c3aed"/>
+              <text x="358" y="156" fill="#5b21b6" font-weight="700">名义点 μ</text>
+              <text x="470" y="58" fill="#b45309">盒式集（最保守）</text>
+              <text x="470" y="230" fill="#0369a1">椭球集</text>
+              <text x="200" y="250" fill="#166534">预算集（Γ 可调）</text>
+              <line x1="60" y1="270" x2="640" y2="270" stroke="#334155" stroke-width="2"/>
+              <line x1="60" y1="270" x2="60" y2="30" stroke="#334155" stroke-width="2"/>
+              <text x="56" y="24" fill="#334155">ξ₂</text><text x="648" y="274" fill="#334155">ξ₁</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 20-1</strong>　三种常见不确定集的几何对比。盒式集把每个参数独立地推到边界，最保守；椭球集用协方差描述参数相关性；预算集（Bertsimas-Sim）用参数 <code>Γ</code> 限定同时偏离的个数，在鲁棒性与最优性间连续折中。图为概念示意。</figcaption>
+        </figure>
 
         <div class="tip">
             <p><strong>个人经验：</strong>Bertsimas-Sim 的预算不确定集是我个人在实际项目中最喜欢的选择。它有一个非常实用的特性：你可以通过调节 Γ 来直观地控制保守程度，而且它保持了问题的线性结构（不需要引入二阶锥约束）。对于一个有 100 道工序的调度问题，如果你设 Γ = 10，那就意味着你要求调度方案能同时容忍最多 10 道工序的加工时间同时偏离名义值——这个"最多10个"的业务直觉，业务方非常容易理解。</p>
@@ -224,7 +271,7 @@
             <a href="index.html">📖 返回目录</a>
             <a href="21.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

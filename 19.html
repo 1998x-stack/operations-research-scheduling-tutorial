@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第19章 随机调度</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第19章 随机调度</h1>
 
         <p>大家好，我是你们的讲师。如果你从事过一线生产管理，你一定有过这样的经历：你花了三个小时排出了一个完美的调度方案——每个工件的开工时间精确到分钟，每台机器的利用率都拉满了——结果方案下发一小时，现场的班长就来电话了："一号机床主轴断了，得停机四小时"。你的完美方案瞬间变成废纸。</p>
@@ -126,6 +139,39 @@
 
 P( makespan ≤ D ) ≥ 0.95
 P( 每个工件的延迟 ≥ 0 ) ≥ 0.95     // 多约束同时满足</code></pre>
+
+        <div class="math-equation">
+          <span class="eq-label">式 19-1　机会约束的一般形式</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="机会约束形式，可横向滚动">
+            <math display="block" aria-label="最小化目标函数，满足完工时间不超过截止日期的概率至少为一减 alpha">
+              <mrow>
+                <mo>min</mo><mspace width="0.4em"/><mi>f</mi><mo>(</mo><mi>x</mi><mo>)</mo>
+                <mspace width="1.2em"/><mtext>s.t.</mtext><mspace width="0.6em"/>
+                <mi>P</mi><mrow><mo>(</mo><msub><mi>C</mi><mi>max</mi></msub><mo>≤</mo><mi>D</mi><mo>)</mo></mrow><mo>≥</mo><mn>1</mn><mo>−</mo><mi>α</mi>
+              </mrow>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">取 <math class="math-inline" aria-label="alpha 等于零点零五"><mi>α</mi><mo>=</mo><mn>0.05</mn></math> 即“按时完工概率≥95%”。<math class="math-inline" aria-label="C_max"><msub><mi>C</mi><mi>max</mi></msub></math> 为随机变量。</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 700 300" role="img" aria-labelledby="fig19-title fig19-desc">
+            <title id="fig19-title">完工时间的分布与机会约束</title>
+            <desc id="fig19-desc">完工时间近似服从钟形分布，截止日期左侧面积占百分之九十五，右侧尾部百分之五为超期风险。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <path d="M80,250 C170,250 210,90 350,90 C490,90 530,250 620,250 Z" fill="#eef2ff" stroke="#4c1d95" stroke-width="2"/>
+              <path d="M80,250 C170,250 210,90 350,90 C400,90 430,120 460,175 L460,250 Z" fill="#c7d2fe" stroke="#4c1d95" stroke-width="1.5"/>
+              <path d="M460,250 C490,250 505,205 530,180 C555,205 570,250 620,250 Z" fill="#fecaca" stroke="#ef4444" stroke-width="1.5"/>
+              <line x1="460" y1="70" x2="460" y2="250" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+              <line x1="80" y1="250" x2="640" y2="250" stroke="#334155" stroke-width="2"/>
+              <text x="460" y="62" text-anchor="middle" fill="#b91c1c" font-weight="700">截止日期 D</text>
+              <text x="250" y="210" text-anchor="middle" fill="#3730a3" font-weight="700">P = 0.95</text>
+              <text x="560" y="210" text-anchor="middle" fill="#b91c1c">5% 超期风险</text>
+              <text x="630" y="270" text-anchor="middle" fill="#334155">完工时间</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 19-1</strong>　机会约束的几何含义。完工时间是随机变量（钟形密度）；约束要求截止日期 <code>D</code> 左侧的累积概率（蓝色面积）不小于 0.95，右侧红色尾部即允许的 5% 超期风险。CCP 的难处在于这条概率约束通常非凸。曲线为教学示意，非实测分布。</figcaption>
+        </figure>
 
         <p>在数学优化中，CCP 是非常"难搞"的约束——概率约束通常非凸，且计算可行域的边界需要高维积分。对于随机加工时间服从正态分布或对数正态分布的情况，概率约束可以转化为二阶锥约束（Second-Order Cone Constraints），从而可以用现有的求解器处理。但对于更一般的分布，我们需要数值方法。</p>
 
@@ -216,7 +262,7 @@ P( 每个工件的延迟 ≥ 0 ) ≥ 0.95     // 多约束同时满足</code></p
             <a href="index.html">📖 返回目录</a>
             <a href="20.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
