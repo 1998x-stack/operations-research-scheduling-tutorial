@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第18章 调度系统的软件工程</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第18章 调度系统的软件工程</h1>
 
         <p>大家好，我是你们的讲师。上一章我们看完了三个行业的真实调度案例。你有没有注意到一个共同点——这三个案例中，"调度算法"本身通常不是最复杂的部分，真正让项目成功或失败的关键在于：<strong>有没有一个能稳定运行、易于维护、能响应变化的软件系统来承载这些算法？</strong></p>
@@ -89,6 +102,27 @@
                 </tr>
             </tbody>
         </table>
+
+        <figure>
+          <svg viewBox="0 0 700 320" role="img" aria-labelledby="fig18-title fig18-desc">
+            <title id="fig18-title">工业调度系统的四层架构</title>
+            <desc id="fig18-desc">L4 知识管理平台、L3 智能建模中枢、L2 优化求解引擎、L1 用户交互系统自上而下单向依赖。</desc>
+            <defs><marker id="fig18-a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#7c3aed"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="13">
+              <g stroke-width="1.5">
+                <rect x="70" y="30" width="470" height="52" rx="10" fill="#ede9fe" stroke="#8b5cf6"/>
+                <rect x="70" y="98" width="470" height="52" rx="10" fill="#e0e7ff" stroke="#6366f1"/>
+                <rect x="70" y="166" width="470" height="52" rx="10" fill="#e0f2fe" stroke="#0ea5e9"/>
+                <rect x="70" y="234" width="470" height="52" rx="10" fill="#dcfce7" stroke="#16a34a"/>
+              </g>
+              <g font-weight="700"><text x="86" y="62" fill="#5b21b6">L4 知识管理平台</text><text x="86" y="130" fill="#3730a3">L3 智能建模中枢</text><text x="86" y="198" fill="#075985">L2 优化求解引擎</text><text x="86" y="266" fill="#166534">L1 用户交互系统</text></g>
+              <g fill="#475569" font-size="11"><text x="300" y="62">约束定义 · 规则管理 · 模板 · 版本控制</text><text x="300" y="130">数据接入 · 模型生成 · 求解器适配</text><text x="300" y="198">求解器调用 · 结果解析 · gap 评估</text><text x="300" y="266">甘特图 · 人工微调 · what-if</text></g>
+              <line x1="600" y1="50" x2="600" y2="266" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#fig18-a)"/>
+              <text x="612" y="160" fill="#6d28d9" font-size="11">单向依赖</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 18-1</strong>　调度系统的四层单向依赖架构。上层（L4）只依赖下层（L3），下层不知道上层存在。这样约束和规则以业务语言存放在 L4，由 L3 翻译为数学模型；改一条约束不需要改求解器代码，需求反馈周期大幅缩短。</figcaption>
+        </figure>
 
         <p>每一层的核心设计原则是<strong>单向依赖</strong>——上层依赖下层，下层不依赖上层。具体来说：</p>
         <ul>
@@ -272,7 +306,7 @@ def test_scheduling_regression():
             <a href="index.html">📖 返回目录</a>
             <a href="19.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

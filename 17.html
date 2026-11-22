@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第17章 实际工程案例分析</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第17章 实际工程案例分析</h1>
 
         <p>大家好，我是你们的讲师。如果你一直跟着这门课学到这里，恭喜你——你已经掌握了运筹学与调度理论的"十八般武艺"：线性规划、整数规划、动态规划、元启发式、CP-SAT、求解器选型……但我知道你心里可能还藏着一个问题——"这些东西在真实的工厂、港口、医院里到底是怎么用的？"</p>
@@ -52,6 +65,33 @@
         <h2>半导体晶圆厂调度 — 最复杂的调度场景之一</h2>
 
         <p>先说结论：半导体晶圆制造（Semiconductor Wafer Fabrication）可能是人类已知的最复杂的离散制造调度问题。一个 300mm 晶圆厂，投资上百亿美元，一片晶圆要走 300-600 道工序，周期长达 12 周。而更"变态"的是它的 <strong>Re-entrant Flow（重入流）</strong>——晶圆在光刻、刻蚀、沉积等工序间反复循环，同一台设备在工艺的不同阶段会反复被同一个工件访问多次。这在传统 Flow Shop 和 Job Shop 中是不可能出现的。</p>
+
+        <figure>
+          <svg viewBox="0 0 760 270" role="img" aria-labelledby="fig17-title fig17-desc">
+            <title id="fig17-title">晶圆厂的重入流（Re-entrant Flow）</title>
+            <desc id="fig17-desc">晶圆依次经过光刻、刻蚀、沉积，完成后回到光刻开始下一层，同一台设备会被同一工件反复访问。</desc>
+            <defs><marker id="fig17-a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#334155"/></marker><marker id="fig17-l" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 z" fill="#dc2626"/></marker></defs>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <g stroke="#334155" stroke-width="2" fill="none" marker-end="url(#fig17-a)">
+                <line x1="120" y1="92" x2="152" y2="92"/><line x1="245" y1="92" x2="277" y2="92"/>
+                <line x1="370" y1="92" x2="402" y2="92"/><line x1="495" y1="92" x2="527" y2="92"/><line x1="620" y1="92" x2="652" y2="92"/>
+              </g>
+              <g stroke-width="1.5">
+                <rect x="30" y="70" width="90" height="44" rx="8" fill="#ede9fe" stroke="#8b5cf6"/>
+                <rect x="155" y="70" width="90" height="44" rx="8" fill="#ccfbf1" stroke="#14b8a6"/>
+                <rect x="280" y="70" width="90" height="44" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+                <rect x="405" y="70" width="90" height="44" rx="8" fill="#ede9fe" stroke="#8b5cf6"/>
+                <rect x="530" y="70" width="90" height="44" rx="8" fill="#ccfbf1" stroke="#14b8a6"/>
+                <rect x="655" y="70" width="90" height="44" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+              </g>
+              <g text-anchor="middle" fill="#1e293b"><text x="75" y="97">光刻 L1</text><text x="200" y="97">刻蚀 E1</text><text x="325" y="97">沉积 D1</text><text x="450" y="97">光刻 L2</text><text x="575" y="97">刻蚀 E2</text><text x="700" y="97">沉积 D2</text></g>
+              <path d="M700 114 L700 210 L75 210 L75 118" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="8 5" fill="none" marker-end="url(#fig17-l)"/>
+              <text x="388" y="232" text-anchor="middle" fill="#b91c1c">重入：每完成一层，回到光刻开始下一层</text>
+              <text x="30" y="40" fill="#6b7280" font-size="11">同一台光刻机被同一批晶圆反复访问 → 传统 Flow/Job Shop 模型失效</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 17-1</strong>　晶圆制造的 Re-entrant Flow。光刻→刻蚀→沉积构成一个循环，每加工完一层又回到光刻，同一台设备被同一批晶圆多次访问。层数越多（可达数百道工序），循环次数越多，变量数量与耦合复杂度随之爆炸。图为概念示意，不代表真实层数。</figcaption>
+        </figure>
 
         <p>重入流带来的直接后果是——<strong>传统调度方法几乎全部失效</strong>。如果你试图用 MILP 建模全部工序，变量数量会瞬间爆炸。工业界实际的做法是靠<strong>派工规则（Dispatching Rules）</strong>加<strong>少量局部优化</strong>来管理。比如经典的"最小剩余加工时间优先"（Least Work Remaining, LWKR）在晶圆厂中被广泛使用。</p>
 
@@ -193,7 +233,7 @@ Subject To:
             <a href="index.html">📖 返回目录</a>
             <a href="18.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

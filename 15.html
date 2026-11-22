@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第15章 约束规划与CP-SAT</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第15章 约束规划与CP-SAT</h1>
 
         <p>大家好，我是你们的讲师。在上一章我们讲到，元启发式算法虽然能在合理时间内给出不错的解，但它有个让人头疼的问题——它不告诉你这个解距离最优还有多远。说白了，你得到了一个"看着挺好"的方案，但不知道它是不是真得好。那么，有没有一种方法，既保留了强大的约束表达能力，又能给出最优性证明？答案是肯定的——这就是<strong>约束规划（Constraint Programming, CP）</strong>，尤其是 Google OR-Tools 中的 CP-SAT 求解器。</p>
@@ -131,6 +144,46 @@ fixed = model.NewFixedSizeIntervalVar(start, duration, 'name')</code></pre>
             <li><strong>cumulative</strong>：给定一组区间变量和一个资源容量，保证在任何时间点上，正在执行的区间消耗的资源总量不超过容量。这描述的是"人力池"或"工具池"——比如车间只有 3 名高级技工，同一时间最多有 3 个需要高级技工的工序在加工。</li>
             <li><strong>circuit</strong>：在图上找到一个哈密顿回路。这描述的是"访问所有地点各一次"的 TSP 约束——用于带路径决策的调度问题。</li>
         </ul>
+
+        <div class="math-equation">
+          <span class="eq-label">式 15-1　区间变量与累积约束</span>
+          <div class="math-scroll" data-math-scroll tabindex="0" role="region" aria-label="区间变量与累积约束，可横向滚动">
+            <math display="block" aria-label="区间变量的结束等于开始加持续时间；对任意时刻 t，正在执行的区间资源需求之和不超过资源容量">
+              <mtable>
+                <mtr><mtd><msub><mi>end</mi><mi>i</mi></msub><mo>=</mo><msub><mi>start</mi><mi>i</mi></msub><mo>+</mo><msub><mi>duration</mi><mi>i</mi></msub></mtd></mtr>
+                <mtr><mtd><munder><mo>∑</mo><mrow><mi>i</mi><mo>:</mo><msub><mi>start</mi><mi>i</mi></msub><mo>≤</mo><mi>t</mi><mo>&lt;</mo><msub><mi>end</mi><mi>i</mi></msub></mrow></munder><msub><mi>r</mi><mi>i</mi></msub><mo>≤</mo><mi>C</mi><mspace width="1.5em"/><mo>∀</mo><mi>t</mi></mtd></mtr>
+              </mtable>
+            </math>
+          </div>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;"><code>noOverlap</code> 是 <math class="math-inline" aria-label="r 一，C 一"><msub><mi>r</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>,</mo><mi>C</mi><mo>=</mo><mn>1</mn></math> 的特例；<code>cumulative</code> 允许更大的容量。</p>
+        </div>
+
+        <figure>
+          <svg viewBox="0 0 700 320" role="img" aria-labelledby="fig15-title fig15-desc">
+            <title id="fig15-title">区间变量、noOverlap 与 cumulative 约束</title>
+            <desc id="fig15-desc">上行为一台机器上互不重叠的区间变量，下行为三个区间在共用资源上的累积占用曲线，始终不超过容量二。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <text x="20" y="45" fill="#5b21b6" font-weight="700">机器 M1 · noOverlap</text>
+              <line x1="70" y1="110" x2="480" y2="110" stroke="#334155" stroke-width="2"/>
+              <g stroke="#fff" stroke-width="2">
+                <rect x="70" y="62" width="160" height="40" fill="#8b5cf6"/>
+                <rect x="270" y="62" width="120" height="40" fill="#14b8a6"/>
+                <rect x="390" y="62" width="80" height="40" fill="#f59e0b"/>
+              </g>
+              <g fill="#fff" text-anchor="middle"><text x="150" y="87">T1</text><text x="330" y="87">T2</text><text x="430" y="87">T3</text></g>
+              <g stroke="#64748b" stroke-width="1"><line x1="70" y1="102" x2="70" y2="116"/><line x1="230" y1="102" x2="230" y2="116"/></g>
+              <text x="70" y="130" fill="#64748b" font-size="11">start</text><text x="230" y="130" fill="#64748b" font-size="11">end</text>
+              <text x="120" y="52" fill="#6b7280" font-size="11">duration</text>
+              <text x="20" y="175" fill="#0369a1" font-weight="700">共用资源 · cumulative（容量 C=2）</text>
+              <line x1="70" y1="280" x2="480" y2="280" stroke="#334155" stroke-width="2"/>
+              <path d="M70 280 L70 250 L190 250 L190 220 L270 220 L270 250 L430 250 L430 280 Z" fill="#bae6fd" stroke="#0ea5e9" stroke-width="2"/>
+              <line x1="70" y1="220" x2="480" y2="220" stroke="#ef4444" stroke-width="2" stroke-dasharray="6 4"/>
+              <text x="484" y="224" fill="#b91c1c" font-size="11">容量 C=2</text>
+              <text x="230" y="242" fill="#0369a1" font-size="11">占用=2 </text>
+            </g>
+          </svg>
+          <figcaption><strong>图 15-1</strong>　CP-SAT 的两个核心调度约束。上方：同一台机器上的区间变量通过 <code>noOverlap</code> 互不重叠，每个区间由 start / duration / end 三个属性确定。下方：<code>cumulative</code> 约束下，所有区间在共用资源上的瞬时占用（阶梯线）不得超过容量 <code>C=2</code>。图为概念示意。</figcaption>
+        </figure>
 
         <p><strong>可选区间和逻辑约束</strong>—— 现实调度中最棘手的部分就是"不确定做不做"的情况。比如某个工单有可能插单，或者某台设备可能停机维修。CP-SAT 的 OptionalIntervalVar 完美地对应了这种场景：<code>presence</code> 是一个布尔变量，当其值为 True 时该区间才被激活，否则该区间不参与任何约束传播。在这个机制之上，你可以轻松建模"如果执行任务 A 就不能执行任务 B"这样的逻辑约束：</p>
 
@@ -242,7 +295,7 @@ def solve_jsp_cp_sat(jobs_data):
             <a href="index.html">📖 返回目录</a>
             <a href="16.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>

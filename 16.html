@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>第16章 主流求解器实战</title>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        img, svg { max-width: 100%; height: auto; }
+        pre { overflow-x: auto; max-width: 100%; }
+        table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+        .container { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); }
+        .sidebar, .main-content { min-width: 0; }
+        figure { margin: 22px 0; text-align: center; }
+        .math-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+        .math-scroll math[display="block"] { width: max-content; min-width: 100%; }
+        .math-equation { max-width: 100%; min-width: 0; }
+        figcaption { font-size: 0.88rem; line-height: 1.7; text-align: left; }
+        @media (max-width: 768px) { .container { grid-template-columns: minmax(0, 1fr); } }
+    </style>
 </head>
 <body>
 <div class="double-border">
 <div class="container">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="章节目录">
         <h3>📐 课程目录</h3>
         <ul class="chapter-list">
             <li><a href="01.html">第01章 运筹学与调度概述</a></li>
@@ -41,8 +54,8 @@
             <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
             <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
         </ul>
-    </div>
-    <div class="main-content">
+    </nav>
+    <main class="main-content">
         <h1>第16章 主流求解器实战</h1>
 
         <p>大家好，我是你们的讲师。假设你是一家制造企业的运筹算法工程师，刚接到一个新项目：排产系统升级，要为新工厂做个排程引擎。你的第一个问题一定是——用什么求解器？Gurobi 太贵、CP-SAT 刚学完还不熟悉、SCIP 开源的性能够用吗？选求解器这件事，做对了事半功倍，选错了项目烂尾。今天这一章，我们来一次求解器的"全栈巡礼"——2026 年的求解器生态是什么样的，以及在实际调度项目中怎么做选型决策。</p>
@@ -67,6 +80,31 @@
             <li><strong>SCIP 9.2</strong>—— 学术界的宠儿，Constraint Integer Programming 的典范。SCIP 是个"大杂烩"：它同时支持 MILP、CP 和 SAT 技术。由于不依赖商业线性库（它用自家的 SoPlex），纯数值性能略逊于 Gurobi，但其模型表达能力极强。学术界很多新算法研究都在 SCIP 上做原型验证。</li>
             <li><strong>GLPK</strong>—— GNU 项目的一部分，纯 LP/MILP 求解器。性能差，但胜在<strong>干净、稳定、无依赖</strong>。适合教学和简单场景，不适合工业生产。</li>
         </ul>
+
+        <figure>
+          <svg viewBox="0 0 700 360" role="img" aria-labelledby="fig16-title fig16-desc">
+            <title id="fig16-title">主流求解器的概念定位图</title>
+            <desc id="fig16-desc">横轴表示通用 LP/MILP 求解强度，纵轴表示组合与调度专用求解强度，各类求解器分布在不同位置。</desc>
+            <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+              <rect x="100" y="60" width="520" height="240" fill="#fafafe" stroke="#e2e8f0"/>
+              <line x1="100" y1="300" x2="620" y2="300" stroke="#334155" stroke-width="2"/>
+              <line x1="100" y1="300" x2="100" y2="60" stroke="#334155" stroke-width="2"/>
+              <text x="630" y="304" fill="#334155">通用 LP/MILP 强度 →</text>
+              <text x="60" y="55" fill="#334155" transform="rotate(-90 60 55)">组合/调度专用强度 →</text>
+              <g fill="#8b5cf6"><circle cx="484" cy="185" r="7"/><circle cx="446" cy="196" r="7"/><circle cx="494" cy="174" r="7"/></g>
+              <g fill="#0ea5e9"><circle cx="388" cy="231" r="7"/><circle cx="398" cy="157" r="7"/></g>
+              <g fill="#16a34a"><circle cx="302" cy="105" r="7"/><circle cx="244" cy="93" r="7"/></g>
+              <circle cx="186" cy="254" r="6" fill="#94a3b8"/>
+              <g fill="#1e293b" font-size="12">
+                <text x="496" y="189">Gurobi</text><text x="458" y="200">CPLEX</text><text x="472" y="166">COPT</text>
+                <text x="400" y="235">HiGHS</text><text x="410" y="154">SCIP</text>
+                <text x="314" y="109">CP-SAT</text><text x="196" y="86">Hexaly</text><text x="196" y="258">GLPK</text>
+              </g>
+              <text x="110" y="88" fill="#6b7280" font-size="11">位置为定性示意，非量化评分</text>
+            </g>
+          </svg>
+          <figcaption><strong>图 16-1</strong>　求解器的能力定位（概念示意）。通用 MILP 求解器（Gurobi / CPLEX / COPT，紫色）在 LP/MILP 上更强；CP-SAT 与 Hexaly（绿）偏向组合与调度专用；HiGHS / SCIP（蓝）介于两者之间；GLPK（灰）性能最弱但轻量稳定。具体排名请以本章 Benchmark 表与官方文档为准。</figcaption>
+        </figure>
 
         <div class="tip">
             <p><strong>一个容易被忽视的选项——HiGHS：</strong>2023 年 HiGHS 赢得 COIN-OR Cup 后快速普及。它的 pure LP 求解已经非常接近商业水平，MILP 方面也在快速追赶。如果你有 MILP 需求但预算有限，HiGHS 是 CP-SAT 之外的绝佳组合。OR-Tools 内部已经集成了 HiGHS，所以你可以通过 <code>Solver("HiGHS")</code> 直接调用——不需要额外安装。</p>
@@ -243,7 +281,7 @@ print(f"HiGHS objective: {result.objective_value()}")</code></pre>
             <a href="index.html">📖 返回目录</a>
             <a href="17.html">下一章 →</a>
         </div>
-    </div>
+    </main>
 </div>
 </div>
 </body>
