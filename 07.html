@@ -196,6 +196,16 @@
           <figcaption><strong>图 7-1</strong>　同一组工件、两种最优目标。SPT 顺序（J2→J4→J1→J3）把 ΣCⱼ 压到 21；EDD 顺序（J4→J1→J2→J3）则把 Lmax 压到 −1。二者排序不同，说明“最优”必须相对目标而言。工时与交货期为构造的<b>教学示意</b>。</figcaption>
         </figure>
 
+        <div class="widget" id="seq-widget">
+          <p><strong>动手试一试（教学示意）：</strong>沿用图 7-1 的四个工件——<code>p: J1=3, J2=1, J3=5, J4=2</code>，<code>d: J1=6, J2=8, J3=12, J4=4</code>。切换派工规则，观察同一组数据在不同目标下的排序与指标。</p>
+          <div class="widget-controls" role="group" aria-label="选择派工规则">
+            <button type="button" data-rule="SPT" aria-pressed="true">SPT（最短工时优先）</button>
+            <button type="button" data-rule="EDD" aria-pressed="false">EDD（最早交期优先）</button>
+            <button type="button" data-rule="asIs" aria-pressed="false">原始顺序 J1→J4</button>
+          </div>
+          <output id="seq-out" aria-live="polite"></output>
+        </div>
+
         <h3>WSPT 规则 — 最小化加权总完工时间 ΣwⱼCⱼ</h3>
 
         <p><strong>WSPT（Weighted Shortest Processing Time）</strong>，也叫 Smith 规则：按 <code>pⱼ / wⱼ</code> 的比值升序排列——即"单位权重的加工时间"越短的工件越优先。</p>
@@ -373,5 +383,36 @@
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var jobs = [
+    { id: 'J1', p: 3, d: 6 }, { id: 'J2', p: 1, d: 8 },
+    { id: 'J3', p: 5, d: 12 }, { id: 'J4', p: 2, d: 4 }
+  ];
+  var out = document.getElementById('seq-out');
+  var buttons = [].slice.call(document.querySelectorAll('#seq-widget button'));
+  function render(rule) {
+    var order = jobs.slice();
+    if (rule === 'SPT') order.sort(function (a, b) { return a.p - b.p; });
+    else if (rule === 'EDD') order.sort(function (a, b) { return a.d - b.d; });
+    var t = 0, sum = 0, lmax = -Infinity, parts = [];
+    order.forEach(function (j) {
+      t += j.p; sum += t; lmax = Math.max(lmax, t - j.d);
+      parts.push(j.id + '（完工 ' + t + '）');
+    });
+    out.textContent = '加工顺序：' + parts.join(' → ') + '。总完工时间 ΣCⱼ = ' + sum +
+      '，最大延迟 Lmax = ' + lmax + '。' +
+      (rule === 'SPT' ? '　SPT 顺序使 ΣCⱼ 取最小值。' : '') +
+      (rule === 'EDD' ? '　EDD 顺序使 Lmax 取最小值。' : '');
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render(b.dataset.rule);
+    });
+  });
+  render('SPT');
+})();
+</script>
 </body>
 </html>
