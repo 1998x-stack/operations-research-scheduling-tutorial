@@ -171,6 +171,16 @@
           <figcaption><strong>图 21-1</strong>　目标空间中最小化两个目标。紫色弧线上的解互不支配，构成 Pareto 前沿；灰色点均被前沿上的某个解支配（红色虚线箭头的方向表示同时更低）。多目标优化的目标就是求出一组分布均匀的前沿解，供决策者按偏好选择。</figcaption>
         </figure>
 
+        <div class="widget" id="pareto-widget">
+          <p><strong>动手试一试（教学示意）：</strong>假设有 5 个互不支配的调度方案（makespan / 能耗 kWh）：S1(100/5000)、S2(95/5200)、S3(90/5600)、S4(85/6200)、S5(80/7000)。切换权重，看加权和法挑中前沿上的哪个解（两目标各自按最大值归一化后加权）。</p>
+          <div class="widget-controls" role="group" aria-label="选择目标权重偏好">
+            <button type="button" data-w1="0.8" aria-pressed="false">重视工期 w=(0.8, 0.2)</button>
+            <button type="button" data-w1="0.5" aria-pressed="true">均衡 w=(0.5, 0.5)</button>
+            <button type="button" data-w1="0.2" aria-pressed="false">重视能耗 w=(0.2, 0.8)</button>
+          </div>
+          <output id="pareto-out" aria-live="polite"></output>
+        </div>
+
         <p>用一个通俗的比喻：如果你是一个调度员，你找到了一个方案 A——makespan 是 100 小时，能耗是 5000 kWh。另一个方案 B——makespan 是 95 小时，能耗是 5200 kWh。那么 A 和 B 互相不支配——A 能耗更低，B 时间更短。它们都是 Pareto 最优解（假设没有其他目标更好的方案）。你选择哪一个，取决于业务方更看重时间还是能耗。</p>
 
         <p>多目标优化的目标不是找到一个最优解，而是<strong>找到一组具有良好分布性和收敛性的 Pareto 前沿解集</strong>，让决策者从中选择最符合当前偏好的方案。</p>
@@ -304,5 +314,35 @@ s.t. fᵢ(x) + dᵢ⁻ - dᵢ⁺ = gᵢ,   ∀i
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var sols = [
+    { id: 'S1', c: 100, e: 5000 }, { id: 'S2', c: 95, e: 5200 },
+    { id: 'S3', c: 90, e: 5600 }, { id: 'S4', c: 85, e: 6200 },
+    { id: 'S5', c: 80, e: 7000 }
+  ];
+  var out = document.getElementById('pareto-out');
+  var buttons = [].slice.call(document.querySelectorAll('#pareto-widget button'));
+  function render(w1) {
+    var w2 = Math.round((1 - w1) * 100) / 100;
+    var best = null, bestScore = Infinity;
+    sols.forEach(function (s) {
+      var score = w1 * (s.c / 100) + w2 * (s.e / 7000);
+      if (score < bestScore) { bestScore = score; best = s; }
+    });
+    out.textContent = 'w₁(工期)=' + w1 + '，w₂(能耗)=' + w2 +
+      '：加权和最小的是 ' + best.id + '（makespan=' + best.c +
+      '，能耗=' + best.e + ' kWh，归一化加权和=' + bestScore.toFixed(3) + '）。' +
+      '能耗权重越大，被选中的解沿前沿向“能耗更低、工期更长”的一端移动。';
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render(parseFloat(b.dataset.w1));
+    });
+  });
+  render(0.5);
+})();
+</script>
 </body>
 </html>
