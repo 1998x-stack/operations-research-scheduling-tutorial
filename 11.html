@@ -132,28 +132,28 @@
         <pre><code>LPT调度手工计算
 
 工件（按时间降序）: 9, 8, 7, 6, 5, 4, 3
-机器: M1, M2, M3
+机器: M1, M2, M3（每次分配给当前负载最小的机器；并列时取编号最小的机器）
 
-Step 1: 分配工件9 → machines负载: M1:9,  M2:0,  M3:0   → 选M1（当前负载最小=0）
-Step 2: 分配工件8 → machines负载: M1:9,  M2:8,  M3:0   → 选M3（当前负载最小=0）
-Step 3: 分配工件7 → machines负载: M1:9,  M2:8,  M3:7   → 选M3（当前负载最小=7）
-Step 4: 分配工件6 → machines负载: M1:9,  M2:8,  M3:13  → 选M2（当前负载最小=8）
-Step 5: 分配工件5 → machines负载: M1:9,  M2:14, M3:13  → 选M1（当前负载最小=9）
-Step 6: 分配工件4 → machines负载: M1:14, M2:14, M3:13  → 选M3（当前负载最小=13）
-Step 7: 分配工件3 → machines负载: M1:14, M2:14, M3:17  → 选M1（当前负载最小=14）
+Step 1: 分配工件9 → 负载: M1:9,  M2:0,  M3:0   → 选M1（当前负载最小=0）
+Step 2: 分配工件8 → 负载: M1:9,  M2:0,  M3:0   → 选M2（当前负载最小=0）
+Step 3: 分配工件7 → 负载: M1:9,  M2:8,  M3:0   → 选M3（当前负载最小=0）
+Step 4: 分配工件6 → 负载: M1:9,  M2:8,  M3:7   → 选M3（当前负载最小=7）
+Step 5: 分配工件5 → 负载: M1:9,  M2:8,  M3:13  → 选M2（当前负载最小=8）
+Step 6: 分配工件4 → 负载: M1:9,  M2:13, M3:13  → 选M1（当前负载最小=9）
+Step 7: 分配工件3 → 负载: M1:13, M2:13, M3:13  → 选M1（当前负载最小=13）
 
 最终:
-  M1: 9 + 5 + 3 = 17
-  M2: 8 + 6 = 14
-  M3: 7 + 4 = 11
-Makespan = max(17, 14, 11) = 17
-
-最优 makespan？（手工尝试）
   M1: 9 + 4 + 3 = 16
-  M2: 8 + 7 = 15
-  M3: 6 + 5 = 11
-最优 = 16
-LPT偏差 = (17-16)/16 = 6.25%  &lt; 4/3 - 1/(3m) = 11/9 ≈ 1.222  （Graham 界，m=3）</code></pre>
+  M2: 8 + 5 = 13
+  M3: 7 + 6 = 13
+Makespan = max(16, 13, 13) = 16
+
+最优 makespan？（划分枚举）
+  M1: 9 + 5 = 14
+  M2: 8 + 6 = 14
+  M3: 7 + 4 + 3 = 14
+最优 = 14（总加工量 42，三机均分恰好每台 14）
+LPT偏差 = (16-14)/14 ≈ 14.3%  &lt; 4/3 - 1/(3m) ≈ 1.222 之比（Graham 界，m=3）</code></pre>
 
         <div class="math-equation">
           <span class="eq-label">式 11-1　LPT 的近似比上界（Graham, 1969）</span>
@@ -165,31 +165,40 @@ LPT偏差 = (17-16)/16 = 6.25%  &lt; 4/3 - 1/(3m) = 11/9 ≈ 1.222  （Graham �
               </mrow>
             </math>
           </div>
-          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="m"><mi>m</mi></math> 为机器数，<math class="math-inline" aria-label="C_max 星"><msubsup><mi>C</mi><mi>max</mi><mo>*</mo></msubsup></math> 为最优 makespan。m 越大，界越接近 4/3。上例中 m=3，界为 11/9≈1.222，与实际偏差 6.25% 一致。</p>
+          <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="m"><mi>m</mi></math> 为机器数，<math class="math-inline" aria-label="C_max 星"><msubsup><mi>C</mi><mi>max</mi><mo>*</mo></msubsup></math> 为最优 makespan。m 越大，界越接近 4/3。上例中 m=3，界对应比值 11/9≈1.222（即最大允许偏差约 22.2%），LPT 实际偏差 14.3% 落在界内。</p>
         </div>
 
         <figure>
           <svg viewBox="0 0 700 320" role="img" aria-labelledby="fig11-title fig11-desc">
             <title id="fig11-title">LPT 规则在三台平行机上的甘特图</title>
-            <desc id="fig11-desc">工件按 9、8、7、6、5、4、3 降序依次分配给当前负载最小的机器，最终三台机器负载为 17、14、11，makespan 为 17。</desc>
+            <desc id="fig11-desc">工件按 9、8、7、6、5、4、3 降序依次分配给当前负载最小的机器，最终三台机器负载为 16、13、13，makespan 为 16。</desc>
             <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
               <line x1="70" y1="290" x2="640" y2="290" stroke="#334155" stroke-width="2"/>
               <g fill="#64748b" text-anchor="middle"><text x="70" y="308">0</text><text x="198" y="308">4</text><text x="326" y="308">8</text><text x="454" y="308">12</text><text x="582" y="308">16</text></g>
               <text x="24" y="105" fill="#334155" font-weight="700">M1</text>
-              <g stroke="#fff" stroke-width="2"><rect x="70" y="82" width="288" height="40" fill="#8b5cf6"/><rect x="358" y="82" width="160" height="40" fill="#0ea5e9"/><rect x="518" y="82" width="96" height="40" fill="#22c55e"/></g>
-              <g fill="#fff" text-anchor="middle"><text x="214" y="107">9</text><text x="438" y="107">5</text><text x="566" y="107">3</text></g>
+              <g stroke="#fff" stroke-width="2"><rect x="70" y="82" width="288" height="40" fill="#8b5cf6"/><rect x="358" y="82" width="128" height="40" fill="#0ea5e9"/><rect x="486" y="82" width="96" height="40" fill="#22c55e"/></g>
+              <g fill="#fff" text-anchor="middle"><text x="214" y="107">9</text><text x="422" y="107">4</text><text x="534" y="107">3</text></g>
               <text x="24" y="175" fill="#334155" font-weight="700">M2</text>
-              <g stroke="#fff" stroke-width="2"><rect x="70" y="152" width="256" height="40" fill="#14b8a6"/><rect x="326" y="152" width="192" height="40" fill="#ef4444"/></g>
-              <g fill="#fff" text-anchor="middle"><text x="198" y="177">8</text><text x="422" y="177">6</text></g>
+              <g stroke="#fff" stroke-width="2"><rect x="70" y="152" width="256" height="40" fill="#14b8a6"/><rect x="326" y="152" width="160" height="40" fill="#ef4444"/></g>
+              <g fill="#fff" text-anchor="middle"><text x="198" y="177">8</text><text x="406" y="177">5</text></g>
               <text x="24" y="245" fill="#334155" font-weight="700">M3</text>
-              <g stroke="#fff" stroke-width="2"><rect x="70" y="222" width="224" height="40" fill="#f59e0b"/><rect x="294" y="222" width="128" height="40" fill="#a855f7"/></g>
-              <g fill="#fff" text-anchor="middle"><text x="182" y="247">7</text><text x="358" y="247">4</text></g>
-              <text x="630" y="105" fill="#5b21b6">负载 17 ← makespan</text>
-              <text x="470" y="247" fill="#6b7280">负载 14 / 11</text>
+              <g stroke="#fff" stroke-width="2"><rect x="70" y="222" width="224" height="40" fill="#f59e0b"/><rect x="294" y="222" width="192" height="40" fill="#a855f7"/></g>
+              <g fill="#fff" text-anchor="middle"><text x="182" y="247">7</text><text x="390" y="247">6</text></g>
+              <text x="620" y="105" fill="#5b21b6">负载 16 ← makespan</text>
+              <text x="500" y="247" fill="#6b7280">负载 13 / 13</text>
             </g>
           </svg>
           <figcaption><strong>图 11-1</strong>　LPT 在 3 台同速平行机上的分配结果。工件按时长降序（9,8,7,6,5,4,3）依次落到当前负载最小的机器上，得到负载 17/14/11。块内数字为加工时间；数据取自本章 LPT 示例。负载不均导致的 <code>makespan=17</code> 比最优 16 高约 6.25%。</figcaption>
         </figure>
+
+        <div class="widget" id="lpt-widget">
+          <p><strong>动手试一试（教学示意）：</strong>再次用这 7 个工件（5, 9, 3, 8, 6, 7, 4）和 3 台同速平行机，切换列表调度的排序规则，由浏览器重新模拟分配结果。</p>
+          <div class="widget-controls" role="group" aria-label="选择列表调度规则">
+            <button type="button" data-rule="LPT" aria-pressed="true">LPT（时长降序）</button>
+            <button type="button" data-rule="SPT" aria-pressed="false">SPT（时长升序）</button>
+          </div>
+          <output id="lpt-out" aria-live="polite"></output>
+        </div>
 
         <p><strong>列表调度（List Scheduling）</strong>是 LPT 的通用框架：维护一个"待安排工件的列表"，每次从列表中取出一个工件（按某种优先级规则），分配给当前负载最小的机器。LPT 是这个框架下的一种具体规则（按加工时间降序排列）。其他常见的列表调度规则有：SPT（最短加工时间优先）、ECT（最早完工时间优先）、WECT（加权最早完工时间优先）等。</p>
 
@@ -229,5 +238,42 @@ LPT偏差 = (17-16)/16 = 6.25%  &lt; 4/3 - 1/(3m) = 11/9 ≈ 1.222  （Graham �
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var times = [5, 9, 3, 8, 6, 7, 4];
+  var m = 3;
+  var out = document.getElementById('lpt-out');
+  var buttons = [].slice.call(document.querySelectorAll('#lpt-widget button'));
+  function listSchedule(order) {
+    var loads = [0, 0, 0], assign = [[], [], []];
+    order.forEach(function (t) {
+      var i = 0;
+      for (var k = 1; k < m; k++) { if (loads[k] < loads[i]) i = k; }
+      loads[i] += t; assign[i].push(t);
+    });
+    return { loads: loads, assign: assign };
+  }
+  function render(rule) {
+    var order = times.slice().sort(function (a, b) {
+      return rule === 'LPT' ? b - a : a - b;
+    });
+    var r = listSchedule(order);
+    var parts = r.assign.map(function (a, i) {
+      return 'M' + (i + 1) + ': ' + a.join('+') + '=' + r.loads[i];
+    });
+    out.textContent = '分配结果 —— ' + parts.join('，') +
+      '；makespan = ' + Math.max.apply(null, r.loads) + '。' +
+      (rule === 'LPT' ? '　LPT 优先安置长工件，负载更均衡。'
+        : '　SPT 先后放置短工件，长工件最后被迫集中到某台，makespan 反而变大。');
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render(b.dataset.rule);
+    });
+  });
+  render('LPT');
+})();
+</script>
 </body>
 </html>
