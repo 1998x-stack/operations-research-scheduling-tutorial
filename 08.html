@@ -176,7 +176,16 @@
 
 Makespan = max(26, 28) = 28
 
-如果尝试顺序 A→B→C→D→E，计算可得 makespan = 32</code></pre>
+如果尝试顺序 A→B→C→D→E，现场模拟可得 makespan = 29（比 Johnson 顺序多 1）</code></pre>
+
+        <div class="widget" id="johnson-widget">
+          <p><strong>动手试一试：</strong>用上面 5 个工件的数据，切换加工顺序，由浏览器现场模拟两台机器的完工时间（结果与上方手算一致）。</p>
+          <div class="widget-controls" role="group" aria-label="选择加工顺序">
+            <button type="button" data-order="johnson" aria-pressed="true">Johnson 最优顺序</button>
+            <button type="button" data-order="naive" aria-pressed="false">按 A→B→C→D→E 加工</button>
+          </div>
+          <output id="johnson-out" aria-live="polite"></output>
+        </div>
 
         <figure>
           <svg viewBox="0 0 760 300" role="img" aria-labelledby="fig8-title fig8-desc">
@@ -362,5 +371,34 @@ Makespan = max(26, 28) = 28
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var jobs = { A: { a: 5, b: 2 }, B: { a: 3, b: 6 }, C: { a: 8, b: 4 }, D: { a: 4, b: 5 }, E: { a: 6, b: 3 } };
+  var orders = { johnson: ['B', 'D', 'C', 'E', 'A'], naive: ['A', 'B', 'C', 'D', 'E'] };
+  var out = document.getElementById('johnson-out');
+  var buttons = [].slice.call(document.querySelectorAll('#johnson-widget button'));
+  function simulate(seq) {
+    var t1 = 0, t2 = 0;
+    seq.forEach(function (id) {
+      t1 += jobs[id].a;
+      t2 = Math.max(t2, t1) + jobs[id].b;
+    });
+    return { m1: t1, m2: t2 };
+  }
+  function render(key) {
+    var seq = orders[key], r = simulate(seq);
+    out.textContent = '加工顺序 ' + seq.join(' → ') + '：机器1 完工 ' + r.m1 +
+      '，机器2 完工（makespan）= ' + r.m2 + '。' +
+      (key === 'johnson' ? '　Johnson 规则保证 n/2/F/Cmax 的最优性。' : '');
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render(b.dataset.order);
+    });
+  });
+  render('johnson');
+})();
+</script>
 </body>
 </html>
