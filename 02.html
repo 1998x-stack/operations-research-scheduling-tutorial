@@ -230,6 +230,41 @@ s.t. 4x₁ + 2x₂ + s₁ = 60
           <figcaption><strong>图 2-1</strong>　家具厂 LP 的图解法。三条约束边界围成凸多边形可行域；利润等值线（红色虚线）向外平移，最后接触的顶点 <code>(10, 10)</code> 即最优解，<code>Z = 80×10 + 50×10 = 1300</code>。顶点数有限，且最优解必落在某个顶点上——这正是单纯形法的立足点。</figcaption>
         </figure>
 
+        <div class="widget" id="lp-widget">
+          <p><strong>动手试一试（教学示意）：</strong>下面是一个为方便手算而设定的小型 LP——
+          <code>max Z = 5x + 4y</code>，约束 <code>6x + 4y ≤ 24</code>、<code>x + 2y ≤ 6</code>、<code>x, y ≥ 0</code>。
+          最优解必落在可行域的某个顶点上，逐个点击顶点，观察目标函数 Z 的变化。</p>
+          <div class="widget-controls" role="group" aria-label="选择可行域顶点查看目标函数值">
+            <button type="button" data-x="0" data-y="0" aria-pressed="true">顶点 A (0, 0)</button>
+            <button type="button" data-x="4" data-y="0" aria-pressed="false">顶点 B (4, 0)</button>
+            <button type="button" data-x="3" data-y="1.5" aria-pressed="false">顶点 C (3, 1.5)</button>
+            <button type="button" data-x="0" data-y="3" aria-pressed="false">顶点 D (0, 3)</button>
+          </div>
+          <figure>
+            <svg viewBox="0 0 440 320" role="img" aria-labelledby="fig2b-title fig2b-desc">
+              <title id="fig2b-title">小型 LP 的可行域与顶点目标函数值</title>
+              <desc id="fig2b-desc">两条约束边界围成凸多边形可行域，四个顶点可点击查看目标函数值。</desc>
+              <g font-family="system-ui, 'PingFang SC', sans-serif" font-size="12">
+                <g stroke="#e2e8f0" stroke-width="1">
+                  <path d="M120 280 V40"/><path d="M180 280 V40"/><path d="M240 280 V40"/><path d="M300 280 V40"/>
+                  <path d="M60 225 H420"/><path d="M60 170 H420"/><path d="M60 115 H420"/>
+                </g>
+                <polygon points="60,280 300,280 240,198 60,115" fill="#8b5cf6" fill-opacity="0.18" stroke="#7c3aed" stroke-width="2"/>
+                <line x1="300" y1="280" x2="180" y2="115" stroke="#0ea5e9" stroke-width="2.5"/>
+                <line x1="60" y1="115" x2="420" y2="280" stroke="#14b8a6" stroke-width="2.5"/>
+                <line x1="60" y1="280" x2="420" y2="280" stroke="#334155" stroke-width="2"/>
+                <line x1="60" y1="280" x2="60" y2="40" stroke="#334155" stroke-width="2"/>
+                <circle id="lp-hl" cx="60" cy="280" r="8" fill="#dc2626" stroke="#fff" stroke-width="2"/>
+                <text x="300" y="296" fill="#0369a1">6x+4y=24</text>
+                <text x="330" y="120" fill="#0f766e">x+2y=6</text>
+                <text x="420" y="300" fill="#334155">x</text><text x="42" y="52" fill="#334155">y</text>
+              </g>
+            </svg>
+            <figcaption><strong>图 2-2</strong>　小型 LP 的可行域（紫色多边形，教学示意数据）。红色圆点标出当前选中的顶点；结合下方顶点按钮，体会“最优解必在可行域顶点处取得”这一单纯形法的立足点。</figcaption>
+          </figure>
+          <output id="lp-out" aria-live="polite">当前顶点 A (0, 0)：Z = 5×0 + 4×0 = 0</output>
+        </div>
+
         <h3>四种特殊情形</h3>
 
         <p>并不是每个 LP 都有唯一的有限最优解。你可能会遇到以下四种情形：</p>
@@ -356,5 +391,31 @@ s.t. 4x₁ + 2x₂ + s₁ = 60
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var hl = document.getElementById('lp-hl');
+  var out = document.getElementById('lp-out');
+  var buttons = Array.prototype.slice.call(
+    document.querySelectorAll('#lp-widget .widget-controls button'));
+  function px(x) { return 60 + x * 60; }
+  function py(y) { return 280 - y * 55; }
+  function fmt(n) { return Number.isInteger(n) ? String(n) : n.toFixed(1); }
+  function select(btn) {
+    var x = parseFloat(btn.dataset.x), y = parseFloat(btn.dataset.y);
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+    });
+    hl.setAttribute('cx', px(x));
+    hl.setAttribute('cy', py(y));
+    var z = 5 * x + 4 * y;
+    out.textContent = '当前顶点 (' + fmt(x) + ', ' + fmt(y) + ')：Z = 5×' + fmt(x) +
+      ' + 4×' + fmt(y) + ' = ' + fmt(z) +
+      (z === 21 ? '　← 本问题的最优解。' : '');
+  }
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () { select(btn); });
+  });
+})();
+</script>
 </body>
 </html>
