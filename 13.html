@@ -268,6 +268,17 @@ Function Swap_Mutation(chromosome):
           <p style="font-size:0.85rem;color:#6b7280;margin-top:4px;">其中 <math class="math-inline" aria-label="delta f"><mi>Δ</mi><mi>f</mi></math> 为新旧解的代价差（仅当为正即变差时才需按此概率接受），<math class="math-inline" aria-label="T"><mi>T</mi></math> 为当前温度。</p>
         </div>
 
+        <div class="widget" id="sa-widget">
+          <p><strong>动手试一试（教学示意）：</strong>当新解更差时，接受概率为 <code>P = e^(−Δf / T)</code>。选择不同的代价差 Δf 与温度 T，观察 P 的变化。</p>
+          <div class="widget-controls" role="group" aria-label="选择代价差与温度">
+            <button type="button" data-df="1" data-t="10" aria-pressed="true">高温：Δf=1, T=10</button>
+            <button type="button" data-df="1" data-t="1" aria-pressed="false">中温：Δf=1, T=1</button>
+            <button type="button" data-df="5" data-t="1" aria-pressed="false">大代价差：Δf=5, T=1</button>
+            <button type="button" data-df="1" data-t="0.1" aria-pressed="false">低温：Δf=1, T=0.1</button>
+          </div>
+          <output id="sa-out" aria-live="polite"></output>
+        </div>
+
         <h3>冷却策略</h3>
         <ul>
             <li><strong>指数冷却（Exponential Cooling）：</strong>T(t) = T₀ · α<sup>t</sup>，其中 α 通常在 0.8-0.99 之间。这是最常用的策略，降温速度前期快后期慢。</li>
@@ -318,5 +329,28 @@ Function Swap_Mutation(chromosome):
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var out = document.getElementById('sa-out');
+  var buttons = [].slice.call(document.querySelectorAll('#sa-widget button'));
+  function render(df, t) {
+    var p = Math.min(1, Math.exp(-df / t));
+    var pText = p >= 0.001 ? p.toFixed(3) : p.toExponential(2);
+    var hint;
+    if (p > 0.5) hint = '高温探索阶段：很可能接受差解，有助于跳出局部最优。';
+    else if (p > 0.01) hint = '中等温度：仍以一定概率接受差解，探索与开发并存。';
+    else hint = '低温：基本只接受更优解，退化为爬山法，趋于收敛。';
+    out.textContent = 'Δf = ' + df + '，T = ' + t + '：接受概率 P = e^(−' +
+      df + '/' + t + ') = ' + pText + '。' + hint;
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      buttons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render(parseFloat(b.dataset.df), parseFloat(b.dataset.t));
+    });
+  });
+  render(1, 10);
+})();
+</script>
 </body>
 </html>
