@@ -256,6 +256,14 @@
         .card:nth-child(6n+5) .chapter-num { background: #f7c6c6; color: #5a2e2e; }
         .card:nth-child(6n) .chapter-num { background: #c4b3e0; color: #2f2a4a; }
 
+        .chapter-nav { margin: 0.8rem 0 0.4rem; }
+        .chapter-nav ol { columns: 2; column-gap: 1.8rem; margin: 0.6rem 0 0 1.2rem; padding: 0; }
+        .chapter-nav li { margin-bottom: 0.35rem; break-inside: avoid; font-size: 0.92rem; }
+        .chapter-nav a { color: #2b7a4b; text-decoration: none; border-bottom: 1px solid #cfe6c8; }
+        .chapter-nav a:hover { color: #14532d; border-bottom-color: #2b7a4b; }
+        .chapter-nav a:focus-visible { outline: 3px solid #f7d44a; outline-offset: 2px; border-radius: 4px; }
+        @media (max-width: 640px) { .chapter-nav ol { columns: 1; } }
+
         .state-msg {
             text-align: center;
             padding: 3rem;
@@ -305,6 +313,38 @@
     </section>
 
     <h2>全部章节</h2>
+    <nav class="chapter-nav" aria-label="全部章节目录">
+        <ol>
+            <li><a href="01.html">第01章 运筹学与调度概述</a></li>
+            <li><a href="02.html">第02章 线性规划基础</a></li>
+            <li><a href="03.html">第03章 对偶理论与灵敏度分析</a></li>
+            <li><a href="04.html">第04章 整数规划与建模</a></li>
+            <li><a href="05.html">第05章 动态规划</a></li>
+            <li><a href="06.html">第06章 计算复杂性理论</a></li>
+            <li><a href="07.html">第07章 单机调度与基本规则</a></li>
+            <li><a href="08.html">第08章 流水车间调度</a></li>
+            <li><a href="09.html">第09章 作业车间调度（上）</a></li>
+            <li><a href="10.html">第10章 作业车间调度（下）</a></li>
+            <li><a href="11.html">第11章 平行机与批量调度</a></li>
+            <li><a href="12.html">第12章 精确求解方法</a></li>
+            <li><a href="13.html">第13章 元启发式算法（上）</a></li>
+            <li><a href="14.html">第14章 元启发式算法（下）</a></li>
+            <li><a href="15.html">第15章 约束规划与CP-SAT</a></li>
+            <li><a href="16.html">第16章 主流求解器实战</a></li>
+            <li><a href="17.html">第17章 实际工程案例分析</a></li>
+            <li><a href="18.html">第18章 调度系统的软件工程</a></li>
+            <li><a href="19.html">第19章 随机调度</a></li>
+            <li><a href="20.html">第20章 鲁棒调度</a></li>
+            <li><a href="21.html">第21章 多目标调度优化</a></li>
+            <li><a href="22.html">第22章 资源约束项目调度</a></li>
+            <li><a href="23.html">第23章 强化学习调度</a></li>
+            <li><a href="24.html">第24章 图神经网络与调度</a></li>
+            <li><a href="25.html">第25章 大模型与运筹优化</a></li>
+            <li><a href="26.html">第26章 数字孪生与智能调度</a></li>
+            <li><a href="27.html">第27章 绿色调度与可持续发展</a></li>
+            <li><a href="28.html">第28章 综合实战：从建模到部署</a></li>
+        </ol>
+    </nav>
     <div id="cardContainer" class="course-grid"></div>
 
     <div style="text-align:center;">
