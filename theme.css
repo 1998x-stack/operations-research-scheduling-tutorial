@@ -172,6 +172,13 @@ figcaption {
 .widget button:focus-visible { outline: 3px solid #7c3aed; outline-offset: 2px; }
 .widget output { display: block; margin-top: 10px; font-variant-numeric: tabular-nums; line-height: 1.7; color: #1e293b; }
 
+/* === References === */
+.refs { margin: 30px 0 0; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; }
+.refs h3 { margin-top: 0; color: #475569; font-size: 1rem; }
+.refs ul { margin: 8px 0 0 18px; }
+.refs li { font-size: 0.85rem; line-height: 1.7; color: #475569; margin-bottom: 6px; }
+.refs em { color: #334155; }
+
 /* === Footer Navigation === */
 .footer-nav {
     margin-top: 45px; padding-top: 20px;
