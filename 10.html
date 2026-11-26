@@ -180,6 +180,16 @@
           <figcaption><strong>图 10-1</strong>　分枝定界在 JSP 上的搜索树。每个节点固定一对析取弧的方向并计算下界 LB；当 <code>LB ≥ 当前上界 UB</code> 时剪枝（红叉）。找到可行解后更新 UB，搜索范围不断收窄。数值为构造的<b>教学示意</b>。</figcaption>
         </figure>
 
+        <div class="widget" id="bb-widget">
+          <p><strong>动手试一试（教学示意）：</strong>沿用图 10-1 的搜索树，设当前上界 UB = 17（由启发式得到）。从根节点出发选择分支方向，观察下界 LB 如何触发剪枝、哪个叶子更新了上界。</p>
+          <div class="widget-controls" role="group" aria-label="分枝定界的分支选择">
+            <button type="button" data-branch="left">选左分支 u→v</button>
+            <button type="button" data-branch="right">选右分支 v→u</button>
+            <button type="button" id="bb-reset">重置 ↺</button>
+          </div>
+          <output id="bb-out" aria-live="polite"></output>
+        </div>
+
         <h2>Shifting Bottleneck启发式 — 识别并优化瓶颈机器</h2>
 
         <p>如果 B&B 追求的是"最优"，那么 <strong>Shifting Bottleneck（SB）</strong> 追求的是"最高性价比"。SB 算法由 Adams、Balás 和 Zawack 在 1988 年提出，它的核心思想极其优雅：<strong>找到当前最拥挤的机器（瓶颈），优化它，然后锁定它，再找下一个瓶颈</strong>。</p>
@@ -303,6 +313,15 @@
 
         <p>这一章我们深入了 JSP 的求解核心。B&B 提供了理论上的最优保障，SB 展现了结构洞察的力量，TS 则展示了智能搜索的艺术。下一章我们将进入另一个重要的调度场景——<strong>平行机与批量调度</strong>。当你有不止一台机器可以并行工作时，问题又会出现新的维度。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>J. Adams, E. Balas, D. Zawack. <em>The shifting bottleneck procedure for job shop scheduling.</em> Management Science, 34(3): 391–401, 1988.（SB 启发式原始文献）</li>
+                <li>F. Glover. <em>Tabu search — part I.</em> ORSA Journal on Computing, 1(3): 190–206, 1989.</li>
+                <li>E. Nowicki, C. Smutnicki. <em>A fast taboo search algorithm for the job shop problem.</em> Management Science, 42(6): 797–813, 1996.</li>
+                <li>M. L. Pinedo. <em>Scheduling: Theory, Algorithms, and Systems</em> (5th ed.). Springer, 2016.</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="09.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
@@ -311,5 +330,45 @@
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var nodes = {
+    root: { lb: 12, label: '根', left: 'A', right: 'B' },
+    A:    { lb: 13, label: 'u→v 节点', left: 'A1', right: 'A2' },
+    A1:   { leaf: true, cmax: 15, label: '叶子（有向无环的解）' },
+    A2:   { lb: 17, label: 'u→v 的右子', pruned: true },
+    B:    { lb: 18, label: 'v→u 节点', pruned: true }
+  };
+  var out = document.getElementById('bb-out');
+  out.style.whiteSpace = 'pre-wrap';
+  var cur = 'root', trail = ['根'], UB = 17;
+  function render(prevUB) {
+    var n = nodes[cur], msg;
+    if (n.pruned) {
+      msg = '节点「' + n.label + '」的下界 LB = ' + n.lb + ' ≥ 当前上界 UB = ' + UB + '，触发剪枝，该分支不再展开。请点“重置”重新开始。';
+    } else if (n.leaf) {
+      msg = '到达叶子：可行解 Cmax = ' + n.cmax + ' < 上界 ' + prevUB + '，于是更新 UB = ' + UB + '；此后其它分支会更早被剪掉。请点“重置”重新开始。';
+    } else {
+      msg = '当前在节点「' + n.label + '」，下界 LB = ' + n.lb + ' < UB = ' + UB + '，尚可展开：请选择左分支或右分支。';
+    }
+    out.textContent = '决策路径：' + trail.join(' → ') + '。\n' + msg;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#bb-widget button[data-branch]'), function (b) {
+    b.addEventListener('click', function () {
+      var n = nodes[cur];
+      if (n.pruned || n.leaf) return;
+      var prevUB = UB;
+      cur = n[b.dataset.branch === 'left' ? 'left' : 'right'];
+      trail.push(nodes[cur].label);
+      if (nodes[cur].leaf) UB = Math.min(UB, nodes[cur].cmax);
+      render(prevUB);
+    });
+  });
+  document.getElementById('bb-reset').addEventListener('click', function () {
+    cur = 'root'; trail = ['根']; UB = 17; render(UB);
+  });
+  render(UB);
+})();
+</script>
 </body>
 </html>
