@@ -173,6 +173,17 @@ P( 每个工件的延迟 ≥ 0 ) ≥ 0.95     // 多约束同时满足</code></p
           <figcaption><strong>图 19-1</strong>　机会约束的几何含义。完工时间是随机变量（钟形密度）；约束要求截止日期 <code>D</code> 左侧的累积概率（蓝色面积）不小于 0.95，右侧红色尾部即允许的 5% 超期风险。CCP 的难处在于这条概率约束通常非凸。曲线为教学示意，非实测分布。</figcaption>
         </figure>
 
+        <div class="widget" id="ccp-widget">
+          <p><strong>动手试一试（教学示意）：</strong>假设某调度的完工时间近似服从正态分布 <code>C ~ N(μ=10, σ²=2²)</code>。选择截止日期 D，控件会给出“按时完工概率” <code>P(C ≤ D)</code>，对照图 19-1 的几何含义。</p>
+          <div class="widget-controls" role="group" aria-label="机会约束：选择截止日期">
+            <button type="button" data-d="11">D = 11</button>
+            <button type="button" data-d="12">D = 12</button>
+            <button type="button" data-d="13">D = 13</button>
+            <button type="button" data-d="14">D = 14</button>
+          </div>
+          <output id="ccp-out" aria-live="polite"></output>
+        </div>
+
         <p>在数学优化中，CCP 是非常"难搞"的约束——概率约束通常非凸，且计算可行域的边界需要高维积分。对于随机加工时间服从正态分布或对数正态分布的情况，概率约束可以转化为二阶锥约束（Second-Order Cone Constraints），从而可以用现有的求解器处理。但对于更一般的分布，我们需要数值方法。</p>
 
         <h3>样本平均近似(SAA)方法</h3>
@@ -257,6 +268,15 @@ P( 每个工件的延迟 ≥ 0 ) ≥ 0.95     // 多约束同时满足</code></p
 
         <p>好，到了这一章的尾声。我们从真实世界的不确定性出发，讨论了随机调度的三种不确定性来源、随机加工时间模型与 WSEPT 规则、MDP 与 Gittins 指数，以及机会约束规划与 SAA 方法。随机调度给了我们一套在概率框架下做决策的工具，但它有一个局限性：它要求我们知道概率分布。如果分布未知怎么办？下一章我们将进入<strong>鲁棒调度（Robust Scheduling）</strong>——它不需要精确的分布，而是通过不确定集来保护最坏情况，为"不知道分布长什么样"的现实场景提供了另一条路径。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>A. Charnes, W. W. Cooper. <em>Chance-constrained programming.</em> Management Science, 6(1): 73–79, 1959.（机会约束规划的原始文献）</li>
+                <li>J. C. Gittins. <em>Bandit processes and dynamic allocation indices.</em> Journal of the Royal Statistical Society B, 41(2): 148–177, 1979.（Gittins 指数）</li>
+                <li>D. P. Bertsekas. <em>Dynamic Programming and Optimal Control</em> (4th ed.). Athena Scientific, 2017.</li>
+                <li>M. L. Pinedo. <em>Scheduling: Theory, Algorithms, and Systems</em> (5th ed.). Springer, 2016.</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="18.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
@@ -265,5 +285,29 @@ P( 每个工件的延迟 ≥ 0 ) ≥ 0.95     // 多约束同时满足</code></p
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var mu = 10, sigma = 2, D = 12;
+  var out = document.getElementById('ccp-out');
+  out.style.whiteSpace = 'pre-wrap';
+  function erf(x) {
+    var s = x < 0 ? -1 : 1; x = Math.abs(x);
+    var p = 0.3275911, a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
+    var t = 1 / (1 + p * x);
+    var y = 1 - ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return s * y;
+  }
+  function Phi(z) { return 0.5 * (1 + erf(z / Math.SQRT2)); }
+  function render() {
+    var z = (D - mu) / sigma, prob = Phi(z);
+    out.textContent = '截止日期 D = ' + D + '（μ = ' + mu + '，σ = ' + sigma + '）。\n' +
+      '标准化 z = (D − μ)/σ = ' + z.toFixed(3) + '，按时完工概率 P(C ≤ D) ≈ ' + (prob * 100).toFixed(1) + '%。';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#ccp-widget button[data-d]'), function (b) {
+    b.addEventListener('click', function () { D = Number(b.dataset.d); render(); });
+  });
+  render();
+})();
+</script>
 </body>
 </html>
