@@ -169,6 +169,15 @@
 
 返回：所有活动的 Sⱼ</code></pre>
 
+        <div class="widget" id="sgs-widget">
+          <p><strong>动手试一试（教学示意）：</strong>用图 22-1 的五个活动（A d2/r3，B d3/r2，C d2/r2，D d4/r3，E d2/r1，容量 R=4），优先级列表固定为 A→B→C→D→E，逐步执行串行 SGS。观察每个活动的时序最早开始 EF 与资源扫描后的实际开始 S。</p>
+          <div class="widget-controls" role="group" aria-label="串行 SGS 分步控制">
+            <button type="button" id="sgs-next">下一步 ▶</button>
+            <button type="button" id="sgs-reset">重置 ↺</button>
+          </div>
+          <output id="sgs-out" aria-live="polite"></output>
+        </div>
+
         <p>串行 SGS 生成的是<strong>主动调度（Active Schedule）</strong>——不存在一个活动能向左移动而不破坏可行性。主动调度的 makespan 不会比最优调度差太多，但串行 SGS 不能保证生成所有可能的主动调度——这意味着可能存在一个最优解，串行 SGS 无论使用什么优先级列表都无法生成它。</p>
 
         <h3>并行SGS(Parallel SGS) — 按时间推进</h3>
@@ -307,6 +316,14 @@
 
         <p>好，这一章我们深入讨论了 RCPSP 的问题定义、核心构造方法 SGS（串行和并行）、Goldratt 的关键链管理哲学，以及 2026 年的最新求解进展。从下一章开始，我们将进入一个全新的篇章——<strong>AI 驱动的调度方法</strong>。下一章我们将讨论<strong>强化学习调度（Reinforcement Learning for Scheduling）</strong>——如何用深度强化学习训练一个智能体，让它像人类调度员一样（甚至更好）做出实时调度决策。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>R. Kolisch, S. Hartmann. <em>Experimental investigation of heuristics for resource-constrained project scheduling: An update.</em> European Journal of Operational Research, 174(1): 23–37, 2006.（串行/并行 SGS 的系统实验对比）</li>
+                <li>E. L. Demeulemeester, W. S. Herroelen. <em>Project Scheduling: A Research Handbook.</em> Kluwer Academic Publishers, 2002.</li>
+                <li>E. M. Goldratt. <em>Critical Chain.</em> North River Press, 1997.（关键链项目管理 CCPM 的来源）</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="21.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
@@ -315,5 +332,45 @@
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var acts = { A:{d:2,r:3}, B:{d:3,r:2}, C:{d:2,r:2}, D:{d:4,r:3}, E:{d:2,r:1} };
+  var pred = { A:[], B:['A'], C:['A'], D:['B','C'], E:['D'] };
+  var order = ['A','B','C','D','E'], R = 4;
+  var steps = [], S = {}, used = [];
+  order.forEach(function (j) {
+    var ef = 0;
+    pred[j].forEach(function (p) { ef = Math.max(ef, S[p] + acts[p].d); });
+    var d = acts[j].d, r = acts[j].r, t = ef;
+    while (true) {
+      var ok = true;
+      for (var tt = t; tt < t + d; tt++) {
+        var load = used.reduce(function (a, u) { return a + (u.s <= tt && tt < u.e ? u.r : 0); }, 0);
+        if (load + r > R) { ok = false; break; }
+      }
+      if (ok) break; t++;
+    }
+    S[j] = t; used.push({ s: t, e: t + d, r: r });
+    steps.push({ j: j, d: d, r: r, ef: ef, s: t, e: t + d });
+  });
+  var out = document.getElementById('sgs-out'), cur = 0;
+  out.style.whiteSpace = 'pre-wrap';
+  function render() {
+    if (cur === 0) { out.textContent = '尚未开始。点击“下一步”，按优先级 A→B→C→D→E 逐个安排活动。'; return; }
+    var lines = steps.slice(0, cur).map(function (s, k) {
+      var delay = s.s > s.ef ? '（资源不足，从 EF=' + s.ef + ' 推迟到 ' + s.s + '）' : '（EF=' + s.ef + ' 即可开始）';
+      return (k + 1) + '. 活动 ' + s.j + '：d=' + s.d + ', r=' + s.r + ' → S=' + s.s + '，占 ' + s.s + '–' + s.e + ' ' + delay;
+    });
+    var done = {}; steps.slice(0, cur).forEach(function (x) { done[x.j] = true; });
+    var reach = Math.max.apply(null, steps.slice(0, cur).map(function (x) { return x.e; }));
+    var next = order.filter(function (j) { return !done[j]; })[0];
+    out.textContent = lines.join('\n') + '\n当前已调度活动的最晚完成时间 = ' + reach +
+      (next ? '；下一步将调度 ' + next + '。' : '；全部调度完毕，项目工期 = ' + reach + '。');
+  }
+  document.getElementById('sgs-next').addEventListener('click', function () { if (cur < steps.length) cur++; render(); });
+  document.getElementById('sgs-reset').addEventListener('click', function () { cur = 0; render(); });
+  render();
+})();
+</script>
 </body>
 </html>
