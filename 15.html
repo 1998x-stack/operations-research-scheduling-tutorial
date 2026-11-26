@@ -282,14 +282,22 @@ def solve_jsp_cp_sat(jobs_data):
             <li>过程中持续记录找到的<strong>最佳解</strong>，并用<strong>证明最优性</strong>的下界来评估 gap。</li>
         </ol>
 
-        <p>2026 年的 CP-SAT 已经发展到了相当恐怖的程度。根据 OR-Tools v9.12 发布时的 benchmark 数据，在 MinePump、RCPSP、JSP 等经典调度问题上，CP-SAT 的表现已经超过了大多数开源的 MILP 求解器，并且在某些类别上紧追 Gurobi 和 CPLEX。尤其值得注意的是，CP-SAT 在 <strong>RCPSP（资源约束项目调度问题）</strong>上表现极为亮眼——它能够在 Gurobi 找不到可行解的问题上快速给出高质量解。</p>
+        <p>2026 年的 CP-SAT 已经发展到了相当成熟的程度。社区与官方发布说明普遍报告，在 MinePump、RCPSP、JSP 等经典调度问题上，CP-SAT 的表现已超过大多数开源 MILP 求解器，并在某些类别上接近 Gurobi 和 CPLEX。尤其值得注意的是，CP-SAT 在 <strong>RCPSP（资源约束项目调度问题）</strong>上表现突出。这里不引用具体百分比：CP-SAT 与商业求解器的孰优孰劣高度依赖实例与版本，精确结果请以 OR-Tools 官方发布说明和 MiniZinc Challenge 历年排行 为准。（下面的具体数字为社区转述的<b>教学示意</b>，未经本文独立复现。）</p>
 
         <div class="warning">
-            <p><strong>讲个真实的数据点：</strong>2025 年的 OR 社区 benchmark 中，有一个著名的 RCPSP 实例集 PSPlib（j120 系列）。在这个集合上，CP-SAT 在 60 秒内找到了 85% 实例的最优解，而 Gurobi 11 在同样时间内只有 52%。更关键的是，有 8 个实例 Gurobi 在 300 秒内连可行解都找不到——CP-SAT 却在 10 秒内给出了解。这不是说 MIP 求解器不行，而是说<strong>选对工具比工具本身更重要</strong>。CP-SAT 对调度的局部结构（区间、重叠、资源容量）有原生的支持，这就是它的核心优势。</p>
+            <p><strong>一个常被引用的数据点（教学示意）：</strong>在公开的 RCPSP 实例集 PSPlib（j120 系列）上，社区报告称 CP-SAT 在 60 秒内找到约 85% 实例的最优解，而某商业 MILP 求解器同期约为 52%，且有少量实例在 300 秒内未找到可行解。这些百分比为社区转述、未经本文独立验证，只能说明一个趋势：<strong>选对工具比工具本身更重要</strong>。CP-SAT 对调度的局部结构（区间、重叠、资源容量）有原生支持，这正是它的核心优势。</p>
         </div>
 
         <p>好的，到这一步我们已经完整地理解了约束规划和 CP-SAT 的原理、用法和适用场景。CP-SAT 让你用更少的代码、更短的时间写出高质量的调度求解器。但问题来了——在一个生产级项目中，CP-SAT 不是唯一的求解器。Gurobi、CPLEX、COPT、SCIP……这么多求解器怎么选？它们各有什么强项？如何在一个项目中使用多个求解器？下一章，我们来一场<strong>主流求解器实战</strong>，带你看清全局。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>Google OR-Tools. <em>CP-SAT Solver（官方文档与发布说明）</em>. <a href="https://developers.google.com/optimization/cp/cp_solver" style="overflow-wrap:anywhere;">developers.google.com/optimization/cp/cp_solver</a></li>
+                <li>MiniZinc. <em>The MiniZinc Challenge（求解器横向评测历年结果）</em>. <a href="https://www.minizinc.org/challenge/" style="overflow-wrap:anywhere;">minizinc.org/challenge</a></li>
+                <li>P. Van Hentenryck. <em>The OPL Optimization Programming Language.</em> MIT Press, 1999.（约束规划全局约束的早期经典）</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="14.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>

@@ -177,6 +177,7 @@ figcaption {
 .refs h3 { margin-top: 0; color: #475569; font-size: 1rem; }
 .refs ul { margin: 8px 0 0 18px; }
 .refs li { font-size: 0.85rem; line-height: 1.7; color: #475569; margin-bottom: 6px; }
+.refs li, .refs a { overflow-wrap: anywhere; word-break: break-word; }
 .refs em { color: #334155; }
 
 /* === Footer Navigation === */
