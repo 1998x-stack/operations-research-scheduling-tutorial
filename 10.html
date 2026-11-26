@@ -335,7 +335,8 @@
   var nodes = {
     root: { lb: 12, label: '根', left: 'A', right: 'B' },
     A:    { lb: 13, label: 'u→v 节点', left: 'A1', right: 'A2' },
-    A1:   { leaf: true, cmax: 15, label: '叶子（有向无环的解）' },
+    A1:   { lb: 14, label: 'u→v 的左子', left: 'A1L' },
+    A1L:  { leaf: true, cmax: 15, label: '叶子（有向无环的解）' },
     A2:   { lb: 17, label: 'u→v 的右子', pruned: true },
     B:    { lb: 18, label: 'v→u 节点', pruned: true }
   };
@@ -349,7 +350,7 @@
     } else if (n.leaf) {
       msg = '到达叶子：可行解 Cmax = ' + n.cmax + ' < 上界 ' + prevUB + '，于是更新 UB = ' + UB + '；此后其它分支会更早被剪掉。请点“重置”重新开始。';
     } else {
-      msg = '当前在节点「' + n.label + '」，下界 LB = ' + n.lb + ' < UB = ' + UB + '，尚可展开：请选择左分支或右分支。';
+      msg = '当前在节点「' + n.label + '」，下界 LB = ' + n.lb + ' < UB = ' + UB + '，尚可展开：请选择一个分支方向。';
     }
     out.textContent = '决策路径：' + trail.join(' → ') + '。\n' + msg;
   }
@@ -357,8 +358,14 @@
     b.addEventListener('click', function () {
       var n = nodes[cur];
       if (n.pruned || n.leaf) return;
+      var next = n[b.dataset.branch === 'left' ? 'left' : 'right'];
+      if (!next) {
+        out.textContent = '决策路径：' + trail.join(' → ') + '。\n节点「' + n.label +
+          '」在图 10-1 中只画出一条可展开分支，请选择另一方向。';
+        return;
+      }
       var prevUB = UB;
-      cur = n[b.dataset.branch === 'left' ? 'left' : 'right'];
+      cur = next;
       trail.push(nodes[cur].label);
       if (nodes[cur].leaf) UB = Math.min(UB, nodes[cur].cmax);
       render(prevUB);
