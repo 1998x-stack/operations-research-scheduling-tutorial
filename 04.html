@@ -259,16 +259,16 @@ s.t. -x₁ + x₂ ≤ 0
   整数最优：x₁ = 1, x₂ = 1, Z = 2.0  → 仍然是 0
 
 更 tricky 的例子：
-max  x₁
+max  x₂
        -x₁ + x₂ ≤ 0
        x₁ + x₂ ≤ 1
        x₁, x₂ ≥ 0, 整数
 
 LP 松弛最优：x₁=0.5, x₂=0.5, Z=0.5
-整数最优：x₁=0, x₂=0, Z=0
-gap = 0.5 / 0 = ∞  !!</code></pre>
+整数最优：x₂=0（(0,0) 与 (1,0) 均达到），Z=0
+gap = 0.5（相对 gap 无穷大）</code></pre>
 
-        <p>整数 gap 越大，说明整数约束的"威力"越大——也就是说，连续的松弛解与离散的真实解差异巨大。MILP 难就难在：<strong>你没法简单地四舍五入</strong>。把 x₁ = 0.5 舍入到 1 可能违反约束，舍入到 0 可能目标值很差。</p>
+        <p>整数 gap 越大，说明整数约束的"威力"越大——也就是说，连续的松弛解与离散的真实解差异巨大。MILP 难就难在：<strong>你没法简单地四舍五入</strong>。把 <code>x₂ = 0.5</code> 舍入到 1 会违反 <code>x₁ + x₂ ≤ 1</code>，舍入到 0 则目标值直接归零。</p>
 
         <figure>
           <svg viewBox="0 0 520 420" role="img" aria-labelledby="fig4-title fig4-desc">
@@ -281,23 +281,33 @@ gap = 0.5 / 0 = ∞  !!</code></pre>
               <polygon points="70,360 310,360 190,240" fill="#8b5cf6" fill-opacity="0.18" stroke="#7c3aed" stroke-width="2"/>
               <line x1="70" y1="360" x2="310" y2="120" stroke="#0ea5e9" stroke-width="2"/>
               <line x1="70" y1="120" x2="310" y2="360" stroke="#14b8a6" stroke-width="2"/>
-              <line x1="190" y1="240" x2="380" y2="240" stroke="#dc2626" stroke-width="2" stroke-dasharray="7 5"/>
-              <polygon points="380,240 370,235 370,245" fill="#dc2626"/>
+              <line x1="190" y1="240" x2="190" y2="150" stroke="#dc2626" stroke-width="2" stroke-dasharray="7 5"/>
+              <polygon points="190,150 184,162 196,162" fill="#dc2626"/>
               <g fill="#64748b">
                 <circle cx="70" cy="360" r="4"/><circle cx="310" cy="360" r="4"/><circle cx="70" cy="120" r="4"/><circle cx="310" cy="120" r="4"/><circle cx="190" cy="120" r="4"/><circle cx="70" cy="240" r="4"/><circle cx="310" cy="240" r="4"/><circle cx="190" cy="360" r="4"/>
               </g>
               <circle cx="190" cy="240" r="7" fill="#fff" stroke="#dc2626" stroke-width="3"/>
               <circle cx="70" cy="360" r="6" fill="#7c3aed" stroke="#fff" stroke-width="2"/>
               <text x="200" y="232" fill="#b91c1c" font-weight="700">LP 松弛最优 (0.5, 0.5)</text>
-              <text x="86" y="350" fill="#5b21b6" font-weight="700">整数最优 (0, 0)</text>
+              <text x="86" y="350" fill="#5b21b6" font-weight="700">整数最优 (0,0) / (1,0)</text>
               <text x="250" y="300" fill="#0369a1">x₂ = x₁</text>
               <text x="90" y="105" fill="#0f766e">x₁+x₂ = 1</text>
-              <text x="400" y="222" fill="#b91c1c">max x₁ 方向</text>
+              <text x="200" y="148" fill="#b91c1c">max x₂ 方向</text>
               <text x="432" y="382" fill="#334155">x₁</text><text x="44" y="64" fill="#334155">x₂</text>
             </g>
           </svg>
-          <figcaption><strong>图 4-1</strong>　整数 gap 的几何来源。去掉整数约束后，LP 可以取到顶点上的分数解 <code>(0.5, 0.5)</code>；而可行域内唯一的整数点只有原点，目标值从 0.5 跌到 0。“四舍五入”既可能越出可行域，也可能远离最优。</figcaption>
+          <figcaption><strong>图 4-1</strong>　整数 gap 的几何来源。去掉整数约束后，LP 可以取到顶点上的分数解 <code>(0.5, 0.5)</code>；而可行域内的整数点 <code>(0,0)</code>、<code>(1,0)</code> 使目标 <code>x₂</code> 跌到 0，0.5 的差距就是整数 gap。"四舍五入"既可能越出可行域，也可能远离最优。</figcaption>
         </figure>
+
+        <div class="widget" id="igap-widget">
+          <p><strong>动手试一试（教学示意）：</strong>对上例的可行域（三角形顶点 <code>(0,0)</code>、<code>(1,0)</code>、<code>(0.5,0.5)</code>）在连续域与整数点上分别最大化目标 <code>x₂</code>，看看整数 gap 从哪里来。</p>
+          <div class="widget-controls" role="group" aria-label="整数 gap 对比控制">
+            <button type="button" id="ig-lp">求解 LP 松弛</button>
+            <button type="button" id="ig-ip">求解整数规划</button>
+            <button type="button" id="ig-both">同时对比</button>
+          </div>
+          <output id="ig-out" aria-live="polite"></output>
+        </div>
 
         <div class="tip">
             <p><strong>求解 MILP 的核心策略：分支定界（Branch and Bound）。</strong>它的思想是：先求解 LP 松弛，如果解恰好是整数，完美结束；如果某个变量应该是整数但不是，就"分支"——强制它 ≤ floor(值) 或 ≥ ceil(值)，递归求解两个子问题。通过比较上界和下界来剪枝。当代求解器还加入了切割平面（Cutting Planes）来收紧松弛，大幅加速求解过程。</p>
@@ -307,6 +317,14 @@ gap = 0.5 / 0 = ∞  !!</code></pre>
 
         <p>下一章我们将进入<strong>动态规划（Dynamic Programming）</strong>——一种完全不同的问题求解范式。如果说整数规划是"暴力穷举的优雅版本"，那么动态规划就是"分阶段决策的智慧结晶"。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>G. B. Dantzig, R. Fulkerson, S. Johnson. <em>Solution of a large-scale traveling-salesman problem.</em> Operations Research, 2(4): 393–410, 1954.</li>
+                <li>A. H. Land, A. G. Doig. <em>An automatic method of solving discrete programming problems.</em> Econometrica, 28(3): 497–520, 1960.（分支定界法原始文献）</li>
+                <li>L. A. Wolsey. <em>Integer Programming.</em> Wiley-Interscience, 1998.</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="03.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
@@ -315,5 +333,28 @@ gap = 0.5 / 0 = ∞  !!</code></pre>
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var region = [[0,0],[1,0],[0.5,0.5]], ip = [[0,0],[1,0]];
+  var out = document.getElementById('ig-out');
+  out.style.whiteSpace = 'pre-wrap';
+  function best(pts, label) {
+    var b = -Infinity, p = null;
+    pts.forEach(function (q) { if (q[1] > b) { b = q[1]; p = q; } });
+    return { z: b, p: p, label: label };
+  }
+  function line(r) { return r.label + '：最优点 (' + r.p[0] + ', ' + r.p[1] + ')，目标值 Z = ' + r.z + '。'; }
+  function render(mode) {
+    var lp = best(region, 'LP 松弛'), ipr = best(ip, '整数规划');
+    if (mode === 'lp') { out.textContent = line(lp) + '\n连续可行域上 x₂ 最大取 0.5（顶点 (0.5, 0.5)）。'; }
+    else if (mode === 'ip') { out.textContent = line(ipr) + '\n可行域内的整数点只有 (0,0)、(1,0)，x₂ 都等于 0。'; }
+    else { out.textContent = line(lp) + '\n' + line(ipr) + '\n整数 gap（目标值之差）= ' + (lp.z - ipr.z) + '。'; }
+  }
+  document.getElementById('ig-lp').addEventListener('click', function () { render('lp'); });
+  document.getElementById('ig-ip').addEventListener('click', function () { render('ip'); });
+  document.getElementById('ig-both').addEventListener('click', function () { render('both'); });
+  render('both');
+})();
+</script>
 </body>
 </html>
