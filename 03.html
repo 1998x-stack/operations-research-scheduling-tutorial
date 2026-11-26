@@ -179,6 +179,17 @@
           <figcaption><strong>图 3-1</strong>　原问题从“资源→产量”出发，对偶问题从“产量→资源定价”出发，两者在最优处目标值相等（<code>Z* = W*</code>，强对偶定理）。对偶变量 <code>y</code> 就是影子价格，直接回答“多给一单位资源能多赚多少”。</figcaption>
         </figure>
 
+        <div class="widget" id="dual-widget">
+          <p><strong>动手试一试（教学示意）：</strong>对上面的家具厂 LP 做一次数值灵敏度分析。点击按钮把某个约束的右端项 <code>+1</code>，控件会重新枚举可行域顶点求最优解，并给出目标值的增量 <code>ΔZ</code>。将它与上面列出的影子价格对照。</p>
+          <div class="widget-controls" role="group" aria-label="灵敏度分析：给某个约束右端项加一">
+            <button type="button" data-res="wood">木工工时 +1</button>
+            <button type="button" data-res="paint">油漆工时 +1</button>
+            <button type="button" data-res="market">市场限制 +1</button>
+            <button type="button" id="dual-reset">重置 ↺</button>
+          </div>
+          <output id="dual-out" aria-live="polite"></output>
+        </div>
+
         <div class="highlight">
             <p><strong>影子价格的商业价值：</strong>我在一家化工厂做过生产优化项目。通过影子价格分析，我们发现某一中间产品的储罐容量是"最紧的瓶颈"——它的影子价格高达每立方米 320 元。而储罐扩容的一次性投资成本约 50 万元，按日产量计算，不到半年就能收回投资。这个 ROI 分析直接说服了管理层立项扩容。没有影子价格，这种投资决策只能凭直觉。</p>
         </div>
@@ -273,6 +284,14 @@
 
         <p>下一章，我们将进入整数规划的领域。线性规划假设变量可以取任意实数，但在现实世界中，很多决策是离散的——一个工序要么做要么不做，一台设备要么用要么不用。整数规划就是为这类问题而生。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>G. B. Dantzig. <em>Linear Programming and Extensions.</em> Princeton University Press, 1963.（单纯形法、对偶与灵敏度分析的经典著作）</li>
+                <li>L. V. Kantorovich. <em>Mathematical methods of organizing and planning production.</em> Management Science, 6(4): 366–422, 1960.</li>
+                <li>F. S. Hillier, G. J. Lieberman. <em>Introduction to Operations Research</em> (11th ed.). McGraw-Hill, 2021.</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="02.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
@@ -281,5 +300,43 @@
     </main>
 </div>
 </div>
+<script>
+(function () {
+  function solveLP(b1, b2, b3) {
+    var cons = [[4,2,b1],[2,2,b2],[-2,1,b3],[-1,0,0],[0,-1,0]];
+    var best = -Infinity, pt = [0,0];
+    for (var i = 0; i < cons.length; i++) for (var j = i + 1; j < cons.length; j++) {
+      var a1 = cons[i][0], c1 = cons[i][1], r1 = cons[i][2], a2 = cons[j][0], c2 = cons[j][1], r2 = cons[j][2];
+      var det = a1 * c2 - a2 * c1; if (Math.abs(det) < 1e-9) continue;
+      var x1 = (r1 * c2 - r2 * c1) / det, x2 = (a1 * r2 - a2 * r1) / det, ok = true;
+      for (var k = 0; k < cons.length; k++) { if (cons[k][0] * x1 + cons[k][1] * x2 > cons[k][2] + 1e-9) { ok = false; break; } }
+      if (ok) { var z = 80 * x1 + 50 * x2; if (z > best) { best = z; pt = [x1, x2]; } }
+    }
+    return { z: best, x: pt };
+  }
+  var names = { wood: '木工工时（60→）', paint: '油漆工时（40→）', market: '市场限制（0→）' };
+  var out = document.getElementById('dual-out');
+  out.style.whiteSpace = 'pre-wrap';
+  var cur = '';
+  function fmt(v) { return (Math.round(v * 100) / 100).toString(); }
+  function render() {
+    var base = solveLP(60, 40, 0);
+    var b = [60, 40, 0];
+    if (cur === 'wood') b[0] += 1; else if (cur === 'paint') b[1] += 1; else if (cur === 'market') b[2] += 1;
+    var now = solveLP(b[0], b[1], b[2]);
+    var d = now.z - base.z;
+    var head = '基准最优：x = (' + fmt(base.x[0]) + ', ' + fmt(base.x[1]) + ')，Z* = ' + base.z + '。\n';
+    if (!cur) { out.textContent = head + '请选择一个资源，把它的可用量加一（右端项 +1）。'; return; }
+    out.textContent = head + '当前：' + names[cur] + b[cur === 'wood' ? 0 : cur === 'paint' ? 1 : 2] + '。\n' +
+      '新最优：x = (' + fmt(now.x[0]) + ', ' + fmt(now.x[1]) + ')，Z* = ' + now.z + '。\n' +
+      '增量 ΔZ = ' + (d >= 0 ? '+' : '') + d + '（每加一单位该资源带来的利润增益，即其影子价格）。';
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#dual-widget button[data-res]'), function (b) {
+    b.addEventListener('click', function () { cur = b.dataset.res; render(); });
+  });
+  document.getElementById('dual-reset').addEventListener('click', function () { cur = ''; render(); });
+  render();
+})();
+</script>
 </body>
 </html>
