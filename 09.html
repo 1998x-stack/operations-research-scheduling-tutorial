@@ -235,6 +235,15 @@ Source → O₂₁(3)→O₁₂(4)→O₃₂(5)→O₃₃(6)→Sink
             <p><strong>一个实践小技巧：</strong>在实现 GT 算法时，初学者经常搞混"最早完成时间"的计算。记住：一个操作的开始时间 r<sub>ij</sub> 受两个条件约束：(1) 它的前序操作（在同一工件中）必须已完成；(2) 它在同一台机器上的前一个操作必须已完成。r<sub>ij</sub> 取这两者的最大值。GT 算法正是在这个时间点上动态处理机器冲突的。</p>
         </div>
 
+        <div class="widget" id="gt-widget">
+          <p><strong>动手试一试（教学示意）：</strong>用本节 3×3 实例逐步执行 GT 算法。平局规则取冲突集中<strong>加工时间最短</strong>的工序（再以工件编号为准）。点击"下一步"推进，观察每一步的冲突集判定、被选中的工序，以及各机器顺序的逐步成形。</p>
+          <div class="widget-controls" role="group" aria-label="Giffler-Thompson 算法的分步控制">
+            <button type="button" id="gt-next">下一步 ▶</button>
+            <button type="button" id="gt-reset">重置 ↺</button>
+          </div>
+          <output id="gt-out" aria-live="polite"></output>
+        </div>
+
         <h2>经典的 JSP Benchmark 实例</h2>
 
         <p>在 JSP 研究的历史上，有几个 benchmark 实例堪称"传奇"。它们不仅在学术论文中被反复引用，也见证了算法能力的进步：</p>
@@ -303,6 +312,15 @@ Source → O₂₁(3)→O₁₂(4)→O₃₂(5)→O₃₃(6)→Sink
 
         <p>这一章我们搭建了 JSP 的基础——析取图模型、GT 算法、以及经典 benchmark。下一章我们将进入 JSP 的求解核心：分枝定界法、Shifting Bottleneck 启发式、以及流行的禁忌搜索。这些都是真正能在实际项目中用的"刀"。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>B. Giffler, G. L. Thompson. <em>Algorithms for Solving Production-Scheduling Problems.</em> Operations Research, 8(4): 487–503, 1960.（析取图与 GT 算法的原始文献）</li>
+                <li>H. Fisher, G. L. Thompson. <em>Probabilistic learning combinations of local job-shop scheduling rules.</em> In Industrial Scheduling, Prentice-Hall, 1963.（FT06/FT10/FT20 经典实例来源）</li>
+                <li>J. Adams, E. Balas, D. Zawack. <em>The shifting bottleneck procedure for job shop scheduling.</em> Management Science, 34(3): 391–401, 1988.</li>
+                <li>M. L. Pinedo. <em>Scheduling: Theory, Algorithms, and Systems</em> (5th ed.). Springer, 2016.</li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="08.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
@@ -311,5 +329,48 @@ Source → O₂₁(3)→O₁₂(4)→O₃₂(5)→O₃₃(6)→Sink
     </main>
 </div>
 </div>
+<script>
+(function () {
+  var data = { J1: [['M1',5],['M2',4],['M3',3]], J2: [['M2',3],['M1',6],['M3',2]], J3: [['M3',4],['M2',5],['M1',6]] };
+  var order = ['J1','J2','J3'], steps = [];
+  (function precompute() {
+    var idx = { J1:0, J2:0, J3:0 }, jr = { J1:0, J2:0, J3:0 }, mr = { M1:0, M2:0, M3:0 };
+    while (true) {
+      var ready = [];
+      order.forEach(function (j) {
+        if (idx[j] < data[j].length) {
+          var o = data[j][idx[j]], r = Math.max(jr[j], mr[o[0]]);
+          ready.push({ j:j, i:idx[j], m:o[0], p:o[1], r:r, f:r+o[1] });
+        }
+      });
+      if (!ready.length) break;
+      var fstar = Math.min.apply(null, ready.map(function (x) { return x.f; }));
+      var crit = ready.filter(function (x) { return x.f === fstar; })[0];
+      var conf = ready.filter(function (x) { return x.m === crit.m && x.r < fstar; });
+      conf.sort(function (a, b) { return a.p - b.p || order.indexOf(a.j) - order.indexOf(b.j); });
+      var c = conf[0], s = Math.max(jr[c.j], mr[c.m]), e = s + c.p;
+      jr[c.j] = e; mr[c.m] = e; idx[c.j]++;
+      steps.push({ op: 'O' + c.j.slice(1) + (c.i + 1), m: c.m,
+        conf: conf.map(function (x) { return 'O' + x.j.slice(1) + (x.i + 1); }),
+        start: s, end: e, makespan: Math.max(mr.M1, mr.M2, mr.M3) });
+    }
+  })();
+  var out = document.getElementById('gt-out'), cur = 0;
+  out.style.whiteSpace = 'pre-wrap';
+  function render() {
+    if (cur === 0) { out.textContent = '尚未开始。点击“下一步”执行第 1 步；本实例共需 ' + steps.length + ' 步。'; return; }
+    var lines = steps.slice(0, cur).map(function (s, k) {
+      return (k + 1) + '. 冲突集 {' + s.conf.join(', ') + '} → 选中 ' + s.op + ' 上线 ' + s.m + '，加工区间 [' + s.start + ', ' + s.end + ']';
+    });
+    var last = steps[cur - 1];
+    out.textContent = lines.join('\n') + '\n' + (cur < steps.length
+      ? '当前已排工序的 makespan 下界 = ' + last.makespan + '（尚未排完）'
+      : '全部工序排完，最终 makespan = ' + last.makespan + '。');
+  }
+  document.getElementById('gt-next').addEventListener('click', function () { if (cur < steps.length) cur++; render(); });
+  document.getElementById('gt-reset').addEventListener('click', function () { cur = 0; render(); });
+  render();
+})();
+</script>
 </body>
 </html>
