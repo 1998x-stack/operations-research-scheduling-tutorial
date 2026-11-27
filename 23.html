@@ -205,7 +205,7 @@ state = {
 
         <p>Actor-Critic 方法同时学习一个策略（Actor）和一个值函数（Critic）。Actor 负责决定做什么，Critic 负责评估做得怎么样。这种架构天然适合调度问题：Actor 输出排程决策，Critic 评价当前排程方案的优劣。</p>
 
-        <p>在调度领域，A2C/A3C 方法已被成功应用于多种调度问题。例如，Park 等人（2021）使用 A3C 训练了一个端到端的 Job Shop 调度器，在 15×15 以下的实例上达到了 OR-Tools CP-SAT 相当的性能，但决策速度快了两个数量级。</p>
+        <p>在调度领域，A2C/A3C 类方法也被用于端到端的 Job Shop 调度：在中小规模实例上给出接近 CP-SAT 的解质量，而单次决策速度快于逐实例求解（具体倍数依赖实例与硬件，属<strong>教学示意</strong>）。</p>
 
         <table>
             <thead>
@@ -234,7 +234,7 @@ state = {
                 <tr>
                     <td>解质量</td>
                     <td>可证明最优或紧界</td>
-                    <td>近似最优，通常 5%-15% gap</td>
+                    <td>近似最优，通常存在一些 gap（具体幅度依问题而定，教学示意）</td>
                 </tr>
                 <tr>
                     <td>可解释性</td>
@@ -330,6 +330,13 @@ class SchedulingEnv(gym.Env):
 
         <p>好，到这一步我们已经理解了强化学习调度从 MDP 建模到算法实现的全貌。下一章，我们将引入一个非常适合表达调度问题的工具——<strong>图神经网络（Graph Neural Network, GNN）</strong>。你会发现，调度问题的析取图结构天然适合 GNN 来处理，而 GNN+RL 的组合正在成为调度领域最前沿的研究方向。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>R. S. Sutton, A. G. Barto. <em>Reinforcement Learning: An Introduction</em>（第 2 版）. MIT Press, 2018.</li>
+                <li>C. Zhang, W. Song, Z. Cao, J. Zhang, P. S. Tan, X. Chi. <em>Learning to Dispatch for Job Shop Scheduling via Deep Reinforcement Learning.</em> NeurIPS, 2020. <a href="https://arxiv.org/abs/2010.12367" style="overflow-wrap:anywhere;">arxiv.org/abs/2010.12367</a></li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="22.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
