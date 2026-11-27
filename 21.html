@@ -298,16 +298,23 @@ s.t. fᵢ(x) + dᵢ⁻ - dᵢ⁺ = gᵢ,   ∀i
             <li><strong>Spread（Δ）：</strong>衡量 Pareto 前沿的分布均匀程度。Δ 越接近 0 越好。</li>
         </ul>
 
-        <p>调度领域常用的多目标 benchmark 包括：Taillard 的 flow shop 实例扩展（加入能耗目标）、多目标 JSP 实例（如 from DMU 数据集）和 FJSP 多目标实例。在 2025 年的一项大规模实验中，有人对比了 15 种多目标算法在 120 个调度实例上的表现，结论是：<strong>NSGA-II 仍然是"最稳妥的基线选择"</strong>，但 MOEA/D 和最新的 NSGA-III（处理高维目标）在特定问题上表现更好。</p>
+        <p>调度领域常用的多目标 benchmark 包括：Taillard 的 flow shop 实例扩展（加入能耗目标）、多目标 JSP 实例和 FJSP 多目标实例。大量文献的共识（此处不罗列具体百分比，属<strong>教学示意</strong>）是：<strong>NSGA-II 仍然是“最稳妥的基线选择”</strong>，而 MOEA/D 以及面向高维目标的 NSGA-III 在特定问题上表现更好。具体孰优孰劣依赖实例与目标个数，请以原始论文和官方 benchmark 为准。</p>
 
         <div class="highlight">
-            <p><strong>一个来自2026年 permutation flow shop 的重要发现：</strong>2026 年发表在《European Journal of Operational Research》上的一篇论文，用 40 年的 Taillard benchmark 实例做了一个系统性的实验：对于每个实例，先用单目标优化得到 makespan 最优解，然后用多目标优化得到 Pareto 前沿。结果发现，在 50% 以上的实例中，<strong>单目标最优的 makespan 解，在"能耗"和"最大延迟"两个目标上严重失衡</strong>——这些解的平均能耗比 Pareto 前沿上的折中解高出 30% 以上，而最大延迟高出 2-3 倍。换句话说，只优化一个目标而忽略其他目标，产生的结果可能在业务上完全不可接受。这再次证实了：<strong>调度优化必须是多目标的——不是锦上添花，而是基本要求</strong>。</p>
+            <p><strong>为什么“只优化一个目标”会翻车（教学示意）：</strong>设想一个 permutation flow shop 实例：先单目标优化 makespan，得到的最优解在履约上很漂亮，但把它拿去算能耗和最大延迟时，往往发现它同时把机器堆在高电价时段满负荷运行、又让部分订单逼近交期。这类“单目标最优解在其它目标上严重失衡”的现象在多目标调度文献中被反复指出（<strong>此处不引用具体论文与百分比</strong>，以免给出无法核对的出处）。它给出的结论朴素而可靠：<strong>只盯着一个目标，得到的方案可能在业务上完全不可接受；多目标视角不是锦上添花，而是基本要求</strong>。要量化偏差，请用你自己实例上的 Pareto 前沿对照。</p>
         </div>
 
         <p>好，这一章我们讨论了多目标调度的本质、Pareto 最优的概念、经典多目标方法和前沿的多目标元启发式算法。但不管是单目标还是多目标，我们前面讨论的所有调度问题都隐含了一个假设：<strong>资源是无限可用的</strong>——至少我们没有显式地限制同时使用资源的数量。但在真正的项目管理中，人员、设备、资金都是有限的。下一章 <strong>资源约束项目调度（RCPSP）</strong>，我们将正式引入资源约束，讨论如何调度一个包含数十到数百个活动、每种资源都有严格上限的项目。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>K. Deb, A. Pratap, S. Agarwal, T. Meyarivan. <em>A fast and elitist multiobjective genetic algorithm: NSGA-II.</em> IEEE Transactions on Evolutionary Computation, 6(2): 182–197, 2002. <a href="https://doi.org/10.1109/4235.996017" style="overflow-wrap:anywhere;">doi.org/10.1109/4235.996017</a></li>
+                <li>Q. Zhang, H. Li. <em>MOEA/D: A multiobjective evolutionary algorithm based on decomposition.</em> IEEE Transactions on Evolutionary Computation, 11(6): 712–731, 2007. <a href="https://doi.org/10.1109/TEVC.2007.892759" style="overflow-wrap:anywhere;">doi.org/10.1109/TEVC.2007.892759</a></li>
+                <li>E. Zitzler, L. Thiele. <em>Multiobjective evolutionary algorithms: a comparative case study and the strength Pareto approach.</em> IEEE Transactions on Evolutionary Computation, 3(4): 257–271, 1999. <a href="https://doi.org/10.1109/4235.797969" style="overflow-wrap:anywhere;">doi.org/10.1109/4235.797969</a></li>
+            </ul>
+        </div>
         <div class="footer-nav">
-            <a href="20.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
             <a href="22.html">下一章 →</a>
         </div>
