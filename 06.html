@@ -255,36 +255,32 @@
             <p><strong>实用建议：</strong>当你在工业界设计调度系统时，尽量把目标函数设定为"好"的目标——比如 ΣCⱼ（总完工时间）就比 ΣTⱼ（总延迟）好求解得多。有时候换一个指标体系，就能把一个 NP-Hard 问题降为 P 问题，从而使用更简单的求解方法。做运筹的人需要懂得"在数学最优和工程可行之间找平衡"。</p>
         </div>
 
-        <h2>一个简单的归约示例</h2>
+        <h2>归约证明的要点与常见陷阱</h2>
 
-        <p>我们再来看一个更贴近实际调度的归约：把<strong>划分问题归约为 F2||Cmax 的决策版本</strong>。</p>
+        <p>写一个正确的 NP-Hard 归约，关键是三件事：<strong>方向要对</strong>（把已知难题映到目标问题）、<strong>归约必须在多项式时间内完成</strong>、<strong>双向对应</strong>（原问题回答"是"当且仅当目标问题回答"是"）。我们仍以划分问题归约到 <code>P2||Cmax</code> 的<strong>决策版本</strong>为例，把这段证明写严谨：</p>
 
-        <pre><code>目标：证明 F2||Cmax 是 NP-Hard
+        <pre><code>目标：证明 P2||Cmax 的决策版本是 NP-Complete
 
-已知：划分问题是 NP-Complete
+已知：划分问题（Partition）是 NP-Complete
+  给定正整数 a₁, …, aₙ，问能否分成两个和相等的子集？
 
-归约步骤：
-  给定划分实例 S = {a₁, a₂, ..., aₙ}，定义 B = Σaᵢ/2
+归约（多项式时间）：
+  给定划分实例，令 B = (Σaᵢ)/2，构造 P2||Cmax 决策实例：
+  工件加工时间 pⱼ = aⱼ，机器数 m = 2，阈值 T = B。
+  问：能否安排使 Cmax ≤ T？
 
-  构造 F2||Cmax 实例：
-  - 每个工件有两道工序：工序1 加工时间 aᵢ，工序2 加工时间 0
-  - 两台机器：机器1 和 机器2
-  - 目标：Cmax ≤ B？
+正确性（双向对应）：
+  (⇒) 若存在等和划分 S₁, S₂（和均为 B），
+      把 S₁、S₂ 分别放到两台机器上 → 两机负载都为 B → Cmax = B ≤ T。 ✓
+  (⇐) 若存在 Cmax ≤ T 的调度，两机负载 L₁ + L₂ = Σaᵢ = 2B 且各自 ≤ B，
+      故必有 L₁ = L₂ = B → 对应一个等和划分。 ✓
 
-  分析：
-  - 所有工件先在机器1上加工（总时间 Σaᵢ），工序2时间为0无关紧要
-  - 问题是能否安排使得最后完工时间 ≤ B？
-  - 但所有工件的总加工时间是 Σaᵢ，需要两台机器并行...
-  这个归约其实不太对。更标准的归约是：
+归约本身是 O(n)，故 P2||Cmax 决策版本 ∈ NP-Complete，
+其优化版本 P2||Cmax 因而 NP-Hard。</code></pre>
 
-已知 NP-Hard：划分问题
-目标问题：P2||Cmax 的决策版本
-
-给定划分实例 S = {a₁, ..., aₙ}，令工件加工时间 pⱼ = aⱼ，
-问是否存在调度方案使得 Cmax ≤ (Σaⱼ)/2？
-
-这个归约正确性已在前面证明过。注意 F2||Cmax 是 P 问题（Johnson），
-所以不能用划分来归约 F2——正确结论是 F2||Cmax ∈ P，F3||Cmax 是 NP-Hard。</code></pre>
+        <div class="warning">
+            <p><strong>常见陷阱——问题选错、方向反了：</strong>不能拿划分去"证明" <code>F2||Cmax</code> 是 NP-Hard——<code>F2||Cmax</code> 恰恰属于 <strong>P</strong>（Johnson 算法，O(n log n)）。真正 NP-Hard 的是三机流水车间 <code>F3||Cmax</code>（Garey、Johnson、Sethi，1976）。这说明：<strong>归约前必须先确认所引用已知问题的难度，并检查归约方向</strong>；把一个本就属于 P 的问题当成 NP-Hard 去归约，得到的"证明"必然自相矛盾。</p>
+        </div>
 
         <p>归约的精髓在于：<strong>你不需要每次都从 SAT/3-SAT 开始做归约</strong>。很多调度问题的 NP-Hard 证明可以直接从划分问题、背包问题或 TSP 出发，因为这些问题的结构和调度天然相似。</p>
 
@@ -308,7 +304,7 @@
             <h3>本章参考</h3>
             <ul>
                 <li>M. R. Garey, D. S. Johnson. <em>Computers and Intractability: A Guide to the Theory of NP-Completeness.</em> W. H. Freeman, 1979.</li>
-                <li>M. R. Garey, D. S. Johnson, R. Sethi. <em>The complexity of flowshop and jobshop scheduling.</em> Mathematics of Operations Research, 1(2): 117–129, 1976.</li>
+                <li>M. R. Garey, D. S. Johnson, R. Sethi. <em>The complexity of flowshop and jobshop scheduling.</em> Mathematics of Operations Research, 1(2): 117–129, 1976. <a href="https://doi.org/10.1287/moor.1.2.117" style="overflow-wrap:anywhere;">doi.org/10.1287/moor.1.2.117</a></li>
             </ul>
         </div>
         <div class="footer-nav">
