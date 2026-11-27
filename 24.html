@@ -179,7 +179,7 @@ class GNNScheduler(nn.Module):
         <p>这种框架的优点是简单、高效，而且可以与 RL 训练无缝配合——奖励信号直接通过策略梯度反传到 GNN 的参数中。这也是目前主流论文中采用最多的方案。</p>
 
         <div class="tip">
-            <p><strong>前沿动态：</strong>2024-2025 年，GNN+调度的一个重要突破来自<strong>隐式可行约束学习</strong>。传统方法需要将所有约束显式编码到算法中，但某些约束在数学上难以形式化（如操作工的偏好、上下游缓冲区的隐性规则）。研究者发现，通过在 GNN 之上堆叠决策树和回归模型，可以在训练数据中<strong>隐式学习这些约束</strong>，生成的调度方案在可行性上显著优于纯 GNN 方案。2026 年，针对 FJSP（柔性作业车间调度）的 GNN 方法已经能在 50×20 规模上达到 MILP 求解器 1 小时求解质量的平均 95%——但推理时间仅需 0.2 秒。</p>
+            <p><strong>前沿动态:</strong>2024-2025 年,GNN+调度的一个重要突破来自<strong>隐式可行约束学习</strong>。传统方法需要将所有约束显式编码到算法中,但某些约束在数学上难以形式化(如操作工的偏好、上下游缓冲区的隐性规则)。研究者发现,通过在 GNN 之上堆叠决策树和回归模型,可以在训练数据中<strong>隐式学习这些约束</strong>,生成的调度方案在可行性上优于纯 GNN 方案。针对 FJSP（柔性作业车间调度）的 GNN 方法也已在若干公共基准上接近“限时内 MILP/CP-SAT 的解质量、但单次推理快几个数量级”这一目标。这里不引用具体的百分比与秒数——它们随实例集与硬件变化很大，属<strong>教学示意</strong>，请以原始文献为准。</p>
         </div>
 
         <p>下面我们用 PyTorch Geometric 构建一个简化版的调度析取图处理示例：</p>
@@ -307,18 +307,25 @@ print("工序优先级分数:", priority_scores)
 
         <p>在 2025-2026 年间，GNN 在调度领域的发展可以用"从能用到好用"来形容。几个值得关注的方向：</p>
 
-        <p><strong>学习隐式可行约束。</strong>传统 GNN 调度器只知道显式编码的约束（工艺顺序、机器容量等），但实际生产中有大量"潜规则"——比如"尽量不要在夜班安排需要质检员配合的工序"、"某台旧机床加工精密度高的工件时需要额外冷却时间"。这些知识很难手工编码，但可以通过历史数据让 GNN 隐式学习。2025 年的一篇 ICML 论文提出了 GNN+决策树+回归的堆叠模型，在隐式约束学习上取得了显著进步。</p>
+        <p><strong>学习隐式可行约束。</strong>传统 GNN 调度器只知道显式编码的约束(工艺顺序、机器容量等),但实际生产中有大量"潜规则"--比如"尽量不要在夜班安排需要质检员配合的工序"、"某台旧机床加工精密度高的工件时需要额外冷却时间"。这些知识很难手工编码,但可以通过历史数据让 GNN 隐式学习。近年的研究提出 GNN + 决策树/回归的堆叠模型来隐式学习这类约束，并报告了可行性上的改进（此处不引用具体会议论文与数字，属<strong>教学示意</strong>，请以原始文献为准）。</p>
 
-        <p><strong>FJSP 上的突破。</strong>柔性作业车间调度（FJSP）因为同时需要分配机器和排序工序，一直被认为是调度领域最困难的问题之一。2026 年初，多个团队独立提出了基于 Heterogeneous GNN 的 FJSP 求解方案，在公共基准上超越了所有传统元启发式方法，GAP 从平均 8% 降到了 3% 以内。</p>
+        <p><strong>FJSP 上的突破。</strong>柔性作业车间调度(FJSP)因为同时需要分配机器和排序工序,一直被认为是调度领域最困难的问题之一。近年多个团队提出基于图神经网络的 FJSP 求解方案，在若干公共基准上报告了优于传统元启发式的解质量；具体“把 gap 从 X% 降到 Y%”的说法高度依赖基准与训练预算，属<strong>教学示意</strong>，不在此断言。</p>
 
-        <p><strong>并行机和 RCPSP 上的推广。</strong>最开始 GNN 调度主要聚焦在 Job Shop 上，但 2025 年以来，GNN 方法成功推广到了并行机调度和资源约束项目调度（RCPSP）。特别是 2026 年 DRL+GNN 结合的方法在 RCPSP 上达到了与 CP-SAT 相当的解质量，但推理时间缩短了 100 倍以上。</p>
+        <p><strong>并行机和 RCPSP 上的推广。</strong>最开始 GNN 调度主要聚焦在 Job Shop 上,但 2025 年以来,GNN 方法成功推广到了并行机调度和资源约束项目调度(RCPSP)。已有 DRL + GNN 的方法被推广到 RCPSP，报告在“接近精确求解器的解质量、但推理时间大幅缩短”上取得进展；具体倍数随实例与设置不同，属<strong>教学示意</strong>。</p>
 
         <div class="highlight">
-            <p><strong>GNN 泛化性的重要进展：</strong>长期以来，GNN 调度方法最大的痛点是"训练在小实例，部署在大实例"时性能断崖式下降。2026 年，这一难题终于取得了重要突破。通过结合<strong>元学习（MAML）</strong>和<strong>可扩展注意力机制（Scalable Attention）</strong>，研究者在 20 节点的小实例上训练的 GNN 调度器，在 200 节点的大实例上仍然保持了 93% 以上的性能——这对工业落地意义重大，因为工厂实际问题的规模可能在训练数据的 10 倍以上。</p>
+            <p><strong>GNN 泛化性的进展：</strong>长期以来，GNN 调度方法最大的痛点是“训练在小实例、部署到大实例”时性能下降。近年的工作尝试用<strong>元学习（MAML）</strong>与<strong>可扩展注意力机制（Scalable Attention）</strong>来缩小这一落差——在小实例上训练、到大实例上仍保持可用性能，这对工业落地意义重大。此处不引用具体百分比与节点数（属<strong>教学示意</strong>）。</p>
         </div>
 
         <p>好，到这一步你已经掌握了 GNN 在调度中的核心原理和最新进展。下一章，我们将进入一个更"出圈"的话题——<strong>大模型（LLM）与运筹优化</strong>。你可能会觉得 LLM 和运筹学是八竿子打不着的两个领域，但事实上，LLM 正在以令人惊讶的方式改变运筹学的面貌——从自动建模到智能调参再到结果解释，LLM 正在成为运筹学家手中的新利器。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>C. Zhang, W. Song, Z. Cao, J. Zhang, P. S. Tan, X. Chi. <em>Learning to Dispatch for Job Shop Scheduling via Deep Reinforcement Learning.</em> Advances in Neural Information Processing Systems (NeurIPS), 2020. <a href="https://arxiv.org/abs/2010.12367" style="overflow-wrap:anywhere;">arxiv.org/abs/2010.12367</a></li>
+                <li>W. Song, X. Chen, Q. Li, Z. Cao. <em>Flexible Job-Shop Scheduling via Graph Neural Network and Deep Reinforcement Learning.</em> IEEE Transactions on Industrial Informatics, 19(2): 1600–1610, 2023. <a href="https://doi.org/10.1109/TII.2022.3189725" style="overflow-wrap:anywhere;">doi.org/10.1109/TII.2022.3189725</a></li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="23.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
