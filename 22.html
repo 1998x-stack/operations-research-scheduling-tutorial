@@ -292,7 +292,7 @@
 
         <p>传统的 RCPSP 启发式算法设计是一个"手工活"——研究人员凭经验设计优先级规则（如 LFT、MINSLACK、GRPW），然后组合成元启发式。2024-2026 年出现的一个令人兴奋的方向是：<strong>用自动算法设计（Automated Algorithm Design）来生成启发式规则。</strong></p>
 
-        <p>具体做法是：使用<strong>遗传规划（Genetic Programming, GP）</strong>作为元方法，自动演化出针对特定 RCPSP 实例分布的高性能优先级规则。在一项 2025 年的实验中，研究人员在一个包含 1000+ 个活动的大规模 RCPSP 实例集上对比了"GP 自动设计的启发式"和"人工设计的经典启发式"，结果 GP 自动设计的规则在 90% 的实例上优于最好的手工规则，且平均 makespan 改进率达到 7.2%。更令人惊讶的是，GP 自动设计出的规则通常非常简洁——一个只有 5-8 个节点的表达式树——但包含了超越人类直觉的非线性组合。</p>
+        <p>具体做法是：使用<strong>遗传规划（Genetic Programming, GP）</strong>作为元方法，自动演化出针对特定 RCPSP 实例分布的高性能优先级规则。文献中反复出现的结论是：在合适的实例分布上，GP 自动设计的规则往往能超过最好的手工优先级规则，而且演化出的表达式树通常很简洁。这里不引用具体的“优于 X% / 改进 Y%”数字——它们高度依赖实例集与实验设置，属<strong>教学示意</strong>，请以原始论文为准。</p>
 
         <p>这暗示了一个趋势：<strong>未来的 RCPSP 求解器可能不再依赖运筹专家设计规则，而是通过算法自动学习针对特定问题分布的规则</strong>。</p>
 
@@ -300,7 +300,7 @@
 
         <p>对于 RCPSP 的精确求解，传统的 MILP 公式（如时间离散化公式）在活动规模超过 30 个时就基本寸步难行。但 CP-SAT（Constraint Programming with SAT 技术）在 RCPSP 上表现出了令人瞩目的性能。</p>
 
-        <p>在 2026 年的一篇基准测试论文中，OR-Tools CP-SAT 求解器与 Gurobi 11.0 在 480 个 RCPSP 标准实例（PSPLib 数据集，J30-J120）上进行了对比：</p>
+        <p>下面的对比<strong>不引用某一篇特定论文的确切数字</strong>，而是概括公开评测中反复出现的<strong>教学示意</strong>趋势（PSPLib 的 J30 / J60 / J120 系列）：</p>
 
         <ul>
             <li>对于 J30（30 活动）实例：CP-SAT 和 Gurobi 都能在 1 秒内求解所有实例，解决率均为 100%</li>
@@ -319,7 +319,7 @@
         <div class="refs" aria-label="本章参考">
             <h3>本章参考</h3>
             <ul>
-                <li>R. Kolisch, S. Hartmann. <em>Experimental investigation of heuristics for resource-constrained project scheduling: An update.</em> European Journal of Operational Research, 174(1): 23–37, 2006.（串行/并行 SGS 的系统实验对比）</li>
+                <li>R. Kolisch, S. Hartmann. <em>Experimental investigation of heuristics for resource-constrained project scheduling: An update.</em> European Journal of Operational Research, 174(1): 23–37, 2006.（串行/并行 SGS 的系统实验对比）<a href="https://doi.org/10.1016/j.ejor.2004.12.020" style="overflow-wrap:anywhere;">doi.org/10.1016/j.ejor.2004.12.020</a></li>
                 <li>E. L. Demeulemeester, W. S. Herroelen. <em>Project Scheduling: A Research Handbook.</em> Kluwer Academic Publishers, 2002.</li>
                 <li>E. M. Goldratt. <em>Critical Chain.</em> North River Press, 1997.（关键链项目管理 CCPM 的来源）</li>
             </ul>
