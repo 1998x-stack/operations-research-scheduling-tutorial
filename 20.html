@@ -219,7 +219,7 @@
 
         <p>传统的事件/周期混合触发有一个漏洞：触发阈值是手工设定的。阈值设得太低，频繁重调度；太高，错过关键事件。2025-2026 年的前沿工作尝试用<strong>强化学习（RL）</strong>来自动学习重调度触发策略——RL 智能体监控系统状态（机器利用率、队列长度、已延迟工件数等），在"触发重调度"和"维持原方案"之间做决策。</p>
 
-        <p>在一篇 2025 年的论文中（发表于 INFORMS Journal on Computing），作者在半导体制造 benchmark 上对比了 RL 驱动的混合触发和手工阈值触发，发现 RL 策略在保持相同水平 schedule stability（方案稳定性）的前提下，makespan 降低了 7.3%，而且不需要人工调参。</p>
+        <p>近年（2025–2026）的前沿工作尝试把这类“何时触发重调度”的阈值交给<strong>强化学习（RL）</strong>来学：智能体监控机器利用率、队列长度、已延迟工件数等状态，在“触发重调度”和“维持原方案”之间取舍。公开文献普遍报告，学出来的触发策略能在保持相近方案稳定性（schedule stability）的同时取得更好的目标值（这里不引用具体论文与百分比，属<strong>教学示意</strong>，请以原始文献为准）。</p>
 
         <table>
             <thead>
@@ -261,11 +261,19 @@
         </table>
 
         <div class="warning">
-            <p><strong>鲁棒不是越保守越好——一个真实的代价：</strong>2018 年，一家汽车零配件工厂引入了一个鲁棒排程系统。原来的确定性排程方案 makespan 是 100 小时，但因为加工时间波动，平均有 15% 的订单延期。运筹团队设计了一个"高鲁棒性"方案——将所有加工时间的不确定区间设为名义值的 ±30%，并用盒式不确定集（最保守的形式）来确保 100% 的约束满足。结果是：调度方案为应对最极端的情况，在每台机器前都塞进了巨大的安全时间，导致整体 makespan 飙升到了 140 小时，<strong>设备利用率从 90% 暴跌到 62%</strong>。更糟糕的是，实际加工中 "±30% 极端情况" 只发生了不到 0.5% 的时间——为了 0.5% 的概率，牺牲了 30% 的产能。真正的教训是：<strong>鲁棒不是越保守越好</strong>，过度鲁棒就是把黄金当废铁用。如果你选择 RO，一定要用交叉验证来选择不确定集的保守程度，而不是拍脑袋。</p>
+            <p><strong>鲁棒不是越保守越好——一个教学示意：</strong>设想一家汽车零配件工厂引入鲁棒排程系统。原来的确定性排程方案 makespan 是 100 小时，但因为加工时间波动，平均有 15% 的订单延期。运筹团队设计了一个“高鲁棒性”方案——将所有加工时间的不确定区间设为名义值的 ±30%，并用盒式不确定集（最保守的形式）来确保 100% 的约束满足。结果是：调度方案为应对最极端的情况，在每台机器前都塞进了巨大的安全时间，导致整体 makespan 飙升到了 140 小时，<strong>设备利用率从 90% 降到 62%</strong>。而实际加工中 “±30% 极端情况” 只在极少时间发生——为了极小概率，牺牲了大块产能。（以上数值为便于说明而设的<strong>教学示意</strong>，非某工厂实测。）真正的教训是：<strong>鲁棒不是越保守越好</strong>，过度鲁棒就是把黄金当废铁用。如果你选择 RO，一定要用交叉验证来选择不确定集的保守程度，而不是拍脑袋。</p>
         </div>
 
         <p>好，这一章我们从经典鲁棒优化出发，讨论了不确定集的三种构造方式、分布鲁棒优化（DRO）、自适应鲁棒优化（ARO），以及反应式调度/重调度的触发机制和修正策略。鲁棒调度给了我们在"分布未知"的场景下保护最坏情况的能力。但不管确定性、随机性还是鲁棒性，我们讨论的都是"单一目标"——最小化 makespan 或最小化成本。现实中，调度往往需要同时考虑多个相互冲突的目标。下一章<strong>多目标调度优化</strong>，我们将讨论如何用 Pareto 最优和非支配排序来应对这种"鱼和熊掌不可兼得"的困境。我们下一章见。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>D. Bertsimas, M. Sim. <em>The Price of Robustness.</em> Operations Research, 52(1): 35–53, 2004. <a href="https://doi.org/10.1287/opre.1030.0065" style="overflow-wrap:anywhere;">doi.org/10.1287/opre.1030.0065</a></li>
+                <li>A. Ben-Tal, L. El Ghaoui, A. Nemirovski. <em>Robust Optimization.</em> Princeton University Press, 2009.</li>
+                <li>P. M. Esfahani, D. Kuhn. <em>Data-driven distributionally robust optimization using the Wasserstein metric.</em> Mathematical Programming, 171(1–2): 115–166, 2018. <a href="https://doi.org/10.1007/s10107-017-1172-1" style="overflow-wrap:anywhere;">doi.org/10.1007/s10107-017-1172-1</a></li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="19.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
