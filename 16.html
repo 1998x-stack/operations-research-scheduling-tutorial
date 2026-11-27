@@ -103,7 +103,7 @@
               <text x="110" y="88" fill="#6b7280" font-size="11">位置为定性示意，非量化评分</text>
             </g>
           </svg>
-          <figcaption><strong>图 16-1</strong>　求解器的能力定位（概念示意）。通用 MILP 求解器（Gurobi / CPLEX / COPT，紫色）在 LP/MILP 上更强；CP-SAT 与 Hexaly（绿）偏向组合与调度专用；HiGHS / SCIP（蓝）介于两者之间；GLPK（灰）性能最弱但轻量稳定。具体排名请以本章 Benchmark 表与官方文档为准。</figcaption>
+          <figcaption><strong>图 16-1</strong>　求解器的能力定位（概念示意）。通用 MILP 求解器（Gurobi / CPLEX / COPT，紫色）在 LP/MILP 上更强；CP-SAT 与 Hexaly（绿）偏向组合与调度专用；HiGHS / SCIP（蓝）介于两者之间；GLPK（灰）性能最弱但轻量稳定。具体排名请以官方文档与公开评测为准。</figcaption>
         </figure>
 
         <div class="tip">
@@ -147,9 +147,9 @@ print(f"HiGHS objective: {result.objective_value()}")</code></pre>
 
         <p>OR-Tools 的 Routing Solver 也是一个强大的工具——它专门为 VRP（车辆路径问题）做了高度优化。如果你要解决配送调度或多车路径问题，Routing Solver 通常比通用 MILP 或 CP-SAT 更快、更可靠。</p>
 
-        <h2>各求解器在调度问题上的 Benchmark（2026）</h2>
+        <h2>各求解器在调度问题上的表现（教学示意）</h2>
 
-        <p>光说不练假把式。我们来看看 2026 年的公开 benchmark 数据，选取三种典型调度问题：CVRPTW（带时间窗的车辆路径）、RCPSP（资源约束项目调度）、JSP（作业车间调度）。</p>
+        <p>光说不练假把式。下面选取三种典型调度问题——CVRPTW（带时间窗的车辆路径）、RCPSP（资源约束项目调度）、JSP（作业车间调度）——给出一个<strong>定性对比</strong>。<strong>下表的星级与 gap 数值是为了说明“不同问题结构适合不同求解器”这一趋势的教学示意，并非本文在统一实例集上的实测结果，也不代表具体版本的确切排名；</strong>真实选型请以你自己的业务实例实测，以及官方文档与公开评测（如 Mittelmann Benchmarks）为准。</p>
 
         <table>
             <thead>
@@ -220,7 +220,7 @@ print(f"HiGHS objective: {result.objective_value()}")</code></pre>
 
         <h2>COPT — 国产求解器的崛起</h2>
 
-        <p>聊一聊国产求解器的标杆——COPT（Cardinal Optimizer）。杉树科技开发的 COPT 在近几年的 Mittelmann 和 Hans Mittelmann 的 LP benchmark 排行榜上表现抢眼。在 2025 年底发布的 benchmark 结果中，COPT 在 <strong>LP 求解的 11 项指标上排名全球第一</strong>，包括 LP 求解速度、内存效率、大规模问题处理等。</p>
+        <p>聊一聊国产求解器的标杆——COPT（Cardinal Optimizer）。杉树科技开发的 COPT 在近几年的公开 LP benchmark 排行榜上表现抢眼。在 Hans Mittelmann 维护的 LP/MILP 公开评测榜单上，COPT 近年在部分指标上名列前茅，LP 求解速度、内存效率等单项多次进入第一梯队。<strong>具体名次会随版本与榜单更新而变动</strong>，请以官方榜单的当期为准确认——此处不作精确名次断言。</p>
 
         <p>为什么会这样？一个重要原因是 COPT 团队对<strong>稀疏矩阵运算和预处理</strong>做了深度优化。很多实际问题的约束矩阵是极度稀疏的（非零元占比不到 1%），COPT 在这方面通过"超节点"技术大幅提升了内存局部性。另一个原因是中国本土的商业支持——你可以直接和开发团队沟通，Bug 修复周期以天计而非以季度计。</p>
 
@@ -276,6 +276,14 @@ print(f"HiGHS objective: {result.objective_value()}")</code></pre>
 
         <p>好了，这一章我们从全景图出发，逐一分析了 2026 年主流求解器的优劣势和适用场景。你手上有了一张清晰的选型地图，也知道如何用 OR-Tools 的 math_opt 模块做到"一套代码换后端"。但纸上得来终觉浅——下一章，我们把目光转向<strong>真实世界的工程案例</strong>：半导体晶圆厂调度、港口码头调度、手术室排程。看看在这些让人"头大"的工业场景中，我们在前 16 章学到的工具到底是怎么被用到极致的。</p>
 
+        <div class="refs" aria-label="本章参考">
+            <h3>本章参考</h3>
+            <ul>
+                <li>H. Mittelmann. <em>Benchmarks for Optimization Software（LP/MILP 公开评测榜单）</em>. <a href="https://plato.asu.edu/bench.html" style="overflow-wrap:anywhere;">plato.asu.edu/bench.html</a></li>
+                <li>Google OR-Tools. <em>MathOpt：solver-agnostic 建模接口（官方文档）</em>. <a href="https://developers.google.com/optimization/math_opt" style="overflow-wrap:anywhere;">developers.google.com/optimization/math_opt</a></li>
+                <li>Q. Huangfu, J. A. J. Hall. <em>Parallelizing the dual revised simplex method.</em> Mathematical Programming Computation, 10(1): 119–142, 2018.（HiGHS 的算法基础）<a href="https://doi.org/10.1007/s12532-017-0130-5" style="overflow-wrap:anywhere;">doi.org/10.1007/s12532-017-0130-5</a></li>
+            </ul>
+        </div>
         <div class="footer-nav">
             <a href="15.html">← 上一章</a>
             <a href="index.html">📖 返回目录</a>
